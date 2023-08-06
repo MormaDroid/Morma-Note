@@ -47,8 +47,8 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import mohsen.morma.mormanote.R
-import mohsen.morma.mormanote.bottombar.model.BottomBarModel
 import mohsen.morma.mormanote.bottombar.setup.Screen
+import mohsen.morma.mormanote.model.BottomBarModel
 import mohsen.morma.mormanote.util.RippleCustomTheme
 import mohsen.morma.mormanote.util.times
 import mohsen.morma.mormanote.util.transform
@@ -79,6 +79,7 @@ private fun getRenderEffect(): RenderEffect {
 
 @Composable
 fun BottomBar(navController: NavHostController) {
+
     val isMenuExtended = remember { mutableStateOf(false) }
 
     val fabAnimationProgress by animateFloatAsState(
@@ -113,6 +114,7 @@ fun BottomBar(navController: NavHostController) {
     }
 }
 
+
 @Composable
 fun BottomBarUI(
     renderEffect: androidx.compose.ui.graphics.RenderEffect?,
@@ -125,7 +127,7 @@ fun BottomBarUI(
     Box(
         Modifier
             .fillMaxSize()
-    ){
+    ) {
         Box(
             Modifier
                 .fillMaxSize()
@@ -138,11 +140,16 @@ fun BottomBarUI(
                 animationProgress = 0.5f
             )
 
-            FabGroup(renderEffect = renderEffect, animationProgress = fabAnimationProgress)
+            FabGroup(
+                renderEffect = renderEffect,
+                animationProgress = fabAnimationProgress,
+                navController = navController
+            )
             FabGroup(
                 renderEffect = null,
                 animationProgress = fabAnimationProgress,
-                toggleAnimation = toggleAnimation
+                toggleAnimation = toggleAnimation,
+                navController = navController
             )
             Circle(
                 color = Color.Transparent,
@@ -172,7 +179,9 @@ fun Circle(color: Color, animationProgress: Float) {
 }
 
 @Composable
-fun CustomBottomNavigation(navController: NavHostController) {
+fun CustomBottomNavigation(
+    navController: NavHostController
+) {
 
     val items = listOf(
         BottomBarModel(
@@ -203,7 +212,8 @@ fun CustomBottomNavigation(navController: NavHostController) {
                 colorFilter = ColorFilter.tint(Color(0xFF1F2F98))
             )
     ) {
-        if (showBottomBar) { items.forEach {item ->
+        if (showBottomBar) {
+            items.forEach { item ->
 
                 val selected = item.route == backStackEntry.value?.destination?.route
 
@@ -213,13 +223,15 @@ fun CustomBottomNavigation(navController: NavHostController) {
                     icon = {
                         CompositionLocalProvider(LocalRippleTheme provides RippleCustomTheme) {
                             IconButton(onClick = {
-                                navController.navigate(item.route){
+                                navController.navigate(item.route) {
                                     // popUpTo = 0 // DEPRECATED
                                     popUpTo(0)
                                 }
                             }) {
                                 Icon(
-                                    painter = if (selected) painterResource(id = item.selectedIcon) else painterResource(id = item.unSelectedIcon),
+                                    painter = if (selected) painterResource(id = item.selectedIcon) else painterResource(
+                                        id = item.unSelectedIcon
+                                    ),
                                     contentDescription = null,
                                     tint = Color.White,  //Todo: Remember Theming
                                     modifier = Modifier.size(30.dp)
@@ -229,7 +241,8 @@ fun CustomBottomNavigation(navController: NavHostController) {
 
                     }
                 )
-            } }
+            }
+        }
     }
 
 }
@@ -239,6 +252,7 @@ fun CustomBottomNavigation(navController: NavHostController) {
 fun FabGroup(
     animationProgress: Float = 0f,
     renderEffect: androidx.compose.ui.graphics.RenderEffect? = null,
+    navController: NavHostController,
     toggleAnimation: () -> Unit = { }
 ) {
     Box(
@@ -271,7 +285,10 @@ fun FabGroup(
             ),
             opacity = LinearEasing.transform(0.3f, 0.8f, animationProgress),
             circleSize = 40.dp
-        )
+        ) {
+            navController.navigate(Screen.NoteScreen.route)
+//            bottomBarState.value = false
+        }
 
         AnimatedFab(
             icon = R.drawable.microphone,
