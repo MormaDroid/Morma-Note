@@ -71,14 +71,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.LightGray
 import androidx.compose.ui.graphics.Color.Companion.Transparent
 import androidx.compose.ui.graphics.Color.Companion.White
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.font.toFontFamily
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
@@ -129,7 +131,7 @@ import mohsen.morma.mormanote.util.WhiteRippleTheme
 import java.io.File
 
 /**font*/
-var fontSelected: MutableState<FontFamily> = mutableStateOf(ysabeauMedium)
+var fontSelected: MutableState<Int> = mutableIntStateOf(ysabeauMedium)
 val fontList = listOf(
     FontModel("ysabeau", ysabeauMedium),
     FontModel("nexa", nexa),
@@ -221,7 +223,8 @@ fun NotePage(
      * Image From Gallery
      */
     var selectImages by remember { mutableStateOf<Uri?>(null) }
-    val galleryLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+    val galleryLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
             selectImages = uri
         }
 
@@ -246,7 +249,8 @@ fun NotePage(
     /**
      * Bottom Sheet Scaffold Variables
      */
-    val bottomSheetScaffoldState = rememberBottomSheetScaffoldState(bottomSheetState = SheetState(false))
+    val bottomSheetScaffoldState =
+        rememberBottomSheetScaffoldState(bottomSheetState = SheetState(false))
     val scope = rememberCoroutineScope()
     val sheetHeight = (LocalConfiguration.current.screenHeightDp / 1.7).dp
 
@@ -303,6 +307,7 @@ fun NotePage(
                 )
             }
 
+
             Column(
                 Modifier
                     .fillMaxSize()
@@ -313,10 +318,12 @@ fun NotePage(
                     )
                     .padding(vertical = 48.dp, horizontal = 16.dp)
             ) {
+
                 /**
                  * Top bar
                  */
                 Row(Modifier.fillMaxWidth(), Arrangement.SpaceBetween, Alignment.CenterVertically) {
+
                     RippleIcon(icon = R.drawable.back, size = 32.dp, tint = bgIconTint.value) {
                         navController.navigate(Screen.HomeScreen.route) {
                             popUpTo(0)
@@ -326,21 +333,22 @@ fun NotePage(
                     Row(Modifier.wrapContentSize()) {
                         RippleIcon(icon = R.drawable.check, size = 32.dp, tint = bgIconTint.value) {
                             if (titleTextFieldValue.value.text.isNotBlank() || contentTextFieldValue.value.text.isNotBlank()) {
-                                noteVM.insertNote(
-                                    NoteEntity(
-                                        title = titleTextFieldValue.value.text,
-                                        content = contentTextFieldValue.value.text,
-                                        font = fontSelected.value,
-                                        date = dateAndTime,
-                                        textColorSelected,
-                                        bgColorSelected,
-                                        bgPicSelected,
-                                        bgIconTint.value,
-                                        textAlignSelected,
-                                        selectImages,
-                                        audioFile
+
+                                    noteVM.insertNote(
+                                        NoteEntity(
+                                            title = titleTextFieldValue.value.text,
+                                            content = contentTextFieldValue.value.text,
+                                            font = fontSelected.value,
+                                            date = dateAndTime,
+                                            textColorSelected.toArgb(),
+                                            bgColorSelected.toArgb(),
+                                            2,
+                                            bgIconTint.value.toArgb(),
+                                            textAlignSelected.toString(),
+                                            selectImages.toString()
+                                        )
                                     )
-                                )
+
                                 navController.navigate(Screen.HomeScreen.route) {
                                     popUpTo(0)
                                 }
@@ -374,7 +382,7 @@ fun NotePage(
                         placeholder = {
                             Text(
                                 text = "Title",
-                                fontFamily = ysabeauBold,
+                                fontFamily = Font(ysabeauBold).toFontFamily(),
                                 fontWeight = FontWeight.ExtraBold,
                                 fontSize = 30.sp
                             )
@@ -388,7 +396,7 @@ fun NotePage(
                             color = textColorSelected,
                             fontSize = 30.sp,
                             fontWeight = FontWeight.ExtraBold,
-                            fontFamily = fontSelected.value
+                            fontFamily = Font(fontSelected.value).toFontFamily()
                         ),
                         keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences)
                     )
@@ -400,7 +408,7 @@ fun NotePage(
                 Text(
                     text = "${Date.calculateDateAndTime()} | $charactersCount characters",
                     color = Color.Gray,
-                    fontFamily = ysabeauMedium,
+                    fontFamily = Font(ysabeauMedium).toFontFamily(),
                     fontSize = 17.sp,
                     modifier = Modifier.padding(start = 18.dp)
                 )
@@ -506,7 +514,7 @@ fun NotePage(
                         textStyle = TextStyle(
                             color = textColorSelected,
                             fontSize = 22.sp,
-                            fontFamily = fontSelected.value,
+                            fontFamily = Font(fontSelected.value).toFontFamily(),
                             textAlign = textAlignSelected
                         ),
                         keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences)
@@ -646,7 +654,7 @@ fun SheetContent(
             Text(
                 text = "Typeface",
                 fontSize = 18.sp,
-                fontFamily = ysabeauBold,
+                fontFamily = Font(ysabeauBold).toFontFamily(),
                 modifier = Modifier.padding(start = 8.dp),
                 color = LightGray
             )
@@ -658,7 +666,7 @@ fun SheetContent(
             ) {
                 CompositionLocalProvider(LocalRippleTheme provides WhiteRippleTheme) {
                     IconButton(onClick = {
-                        if (fontCounter < (fontList.size - 1)) fontCounter++ else fontCounter = 0
+                        if (fontCounter > 0) fontCounter--
                     }, modifier = Modifier.size(24.dp)) {
                         Icon(
                             painter = painterResource(id = R.drawable.left_arrow),
@@ -675,13 +683,13 @@ fun SheetContent(
                     text = fontList[fontCounter].name,
                     fontSize = 22.sp,
                     fontWeight = FontWeight.Bold,
-                    fontFamily = fontList[fontCounter].font,
+                    fontFamily = Font(fontList[fontCounter].font).toFontFamily(),
                     color = White
                 )
 
                 CompositionLocalProvider(LocalRippleTheme provides WhiteRippleTheme) {
                     IconButton(onClick = {
-                        if (fontCounter < (fontList.size - 1)) fontCounter++ else fontCounter = 0
+                        if (fontCounter < (fontList.size - 1)) fontCounter++
                     }, modifier = Modifier.size(24.dp)) {
                         Icon(
                             painter = painterResource(id = R.drawable.left_arrow),
@@ -715,7 +723,7 @@ fun SheetContent(
                 text = "Text Color",
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
-                fontFamily = ysabeauBold,
+                fontFamily = Font(ysabeauBold).toFontFamily(),
                 modifier = Modifier.padding(start = 8.dp),
                 color = LightGray
             )
@@ -778,7 +786,7 @@ fun SheetContent(
                 text = "Background Color",
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
-                fontFamily = ysabeauBold,
+                fontFamily = Font(ysabeauBold).toFontFamily(),
                 modifier = Modifier.padding(start = 8.dp),
                 color = LightGray
             )
@@ -842,7 +850,11 @@ fun SheetContent(
                     Box(modifier = Modifier
                         .size(42.dp)
                         .clip(CircleShape)
-                        .border(1.dp, if (bgPicSelected == it) White else Transparent, CircleShape)
+                        .border(
+                            1.dp,
+                            if (bgPicSelected == it) White else Transparent,
+                            CircleShape
+                        )
                         .selectable(
                             selected = (bgPicSelected == it),
                             onClick = {

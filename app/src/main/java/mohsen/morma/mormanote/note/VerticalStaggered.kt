@@ -20,7 +20,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.font.toFontFamily
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -70,7 +72,7 @@ fun NoteCard(note:NoteEntity) {
                 Text(
                     text = note.title,
                     fontWeight = FontWeight.ExtraBold,
-                    fontFamily = ysabeauBold,
+                    fontFamily = Font(ysabeauBold).toFontFamily(),
                     fontSize = 30.sp,
                     maxLines = 2,
                     color = Color.White,
@@ -83,7 +85,7 @@ fun NoteCard(note:NoteEntity) {
                     text = note.content,
                     modifier = Modifier.padding(start = 8.dp),
                     fontWeight = FontWeight.Medium,
-                    fontFamily = ysabeauMedium,
+                    fontFamily = Font(ysabeauMedium).toFontFamily(),
                     fontSize = 22.sp,
                     maxLines = 15,
                     color = Color.White,

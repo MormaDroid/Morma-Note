@@ -26,7 +26,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.ParagraphStyle
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.font.toFontFamily
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -75,7 +77,7 @@ fun HomePage(
                             fontWeight = FontWeight.SemiBold,
                             color = DarkBlue.copy(alpha = 0.7f),
                             fontSize = 17.sp,
-                            fontFamily = ysabeauMedium
+                            fontFamily = Font(ysabeauMedium).toFontFamily()
                         )
                     ) {
                         append(" Morma ")
@@ -86,7 +88,7 @@ fun HomePage(
                             fontWeight = FontWeight.ExtraBold,
                             color = DarkBlue,
                             fontSize = 20.sp,
-                            fontFamily = ysabeauBold
+                            fontFamily = Font(ysabeauBold).toFontFamily()
                         )
                     ) {
                         append("Note")
@@ -138,7 +140,7 @@ fun HomePage(
                             fontWeight = FontWeight.Normal,
                             color = DarkBlue.copy(alpha = 0.7f),
                             fontSize = 18.sp,
-                            fontFamily = ysabeauMedium
+                            fontFamily = Font(ysabeauMedium).toFontFamily()
                         )
                     ) {
                         append("Hi, ${checkHourForResponseToIt()}\n")
@@ -149,7 +151,7 @@ fun HomePage(
                             fontWeight = FontWeight.ExtraBold,
                             color = DarkBlue,
                             fontSize = 22.sp,
-                            fontFamily = ysabeauBold
+                            fontFamily = Font(ysabeauBold).toFontFamily()
                         )
                     ) {
                         append("Mohsen")

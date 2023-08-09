@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Morma Note</string>
+    <string name="nothing_note">"There isn't any note to show.\nPlease add a note. "</string>
 </resources>

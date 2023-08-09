@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
@@ -27,7 +26,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.font.toFontFamily
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -41,7 +42,6 @@ import mohsen.morma.mormanote.ui.theme.ysabeauBold
 import mohsen.morma.mormanote.ui.theme.ysabeauMedium
 import mohsen.morma.mormanote.util.RippleIcon
 
-@OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun AllNotes(
@@ -76,7 +76,7 @@ fun AllNotes(
                             fontWeight = FontWeight.SemiBold,
                             color = DarkBlue.copy(alpha = 0.7f),
                             fontSize = 17.sp,
-                            fontFamily = ysabeauMedium
+                            fontFamily = Font(ysabeauMedium).toFontFamily()
                         )
                     ) {
                         append(" My ")
@@ -87,7 +87,7 @@ fun AllNotes(
                             fontWeight = FontWeight.ExtraBold,
                             color = DarkBlue,
                             fontSize = 20.sp,
-                            fontFamily = ysabeauBold
+                            fontFamily = Font(ysabeauBold).toFontFamily()
                         )
                     ) {
                         append("Notes")

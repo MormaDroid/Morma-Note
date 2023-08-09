@@ -22,7 +22,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.font.toFontFamily
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -73,10 +76,10 @@ fun CarouselRecentNotes(noteVM: NoteVM = hiltViewModel(),navController: NavHostC
         else{
             Column(Modifier.fillMaxWidth().height(heightScreen.dp).padding(horizontal = 16.dp), Arrangement.Center, Alignment.CenterHorizontally) {
                 Text(
-                    text = "There isn't any note to show.\nPlease add a note. ",
+                    text = stringResource(R.string.nothing_note),
                     fontSize = 22.sp,
                     fontWeight = FontWeight.ExtraBold,
-                    fontFamily = ysabeauBold,
+                    fontFamily = Font(ysabeauBold).toFontFamily(),
                     color = DarkBlue,
                     textAlign = TextAlign.Center
                 )
@@ -117,7 +120,7 @@ fun Title(navController: NavHostController) {
         Text(
             text = "Recent notes",
             fontSize = 16.sp,
-            fontFamily = ysabeauMedium,
+            fontFamily = Font(ysabeauMedium).toFontFamily(),
             color = DarkBlue
         )
 
@@ -176,7 +179,7 @@ fun Pager(recentList: List<NoteEntity>, pagerState: PagerState) {
                     Text(
                         text = recentList[note].title,
                         fontWeight = FontWeight.ExtraBold,
-                        fontFamily = ysabeauBold,
+                        fontFamily = Font(ysabeauBold).toFontFamily(),
                         fontSize = 30.sp,
                         maxLines = 2,
                         color = Color.White,
@@ -189,7 +192,7 @@ fun Pager(recentList: List<NoteEntity>, pagerState: PagerState) {
                         text = recentList[note].content,
                         modifier = Modifier.padding(start = 8.dp),
                         fontWeight = FontWeight.Medium,
-                        fontFamily = ysabeauMedium,
+                        fontFamily = Font(ysabeauMedium).toFontFamily(),
                         fontSize = 22.sp,
                         maxLines = 10,
                         color = Color.White,
