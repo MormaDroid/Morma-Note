@@ -1,55 +1,82 @@
 package mohsen.morma.mormanote.home
 
+import android.annotation.SuppressLint
 import android.os.Build
+import android.util.Log
+import android.widget.Toast
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.ParagraphStyle
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.font.toFontFamily
-import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 import com.razaghimahdi.library.core.CardDrawerState
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import mohsen.morma.mormanote.R
-import mohsen.morma.mormanote.ui.theme.DarkBlue
-import mohsen.morma.mormanote.ui.theme.ysabeauBold
-import mohsen.morma.mormanote.ui.theme.ysabeauMedium
-import mohsen.morma.mormanote.util.Date
-import mohsen.morma.mormanote.util.RippleIcon
+import mohsen.morma.mormanote.auth.errorSnackBar
+import mohsen.morma.mormanote.data.NoteVM
+import mohsen.morma.mormanote.data.dtatstore.DatastoreVM
+import mohsen.morma.mormanote.gesturesEnabled
+import mohsen.morma.mormanote.home.top_bar.TopHomeBarScreen
+import mohsen.morma.mormanote.home.vertical_staggered.VerticalStaggered
+import mohsen.morma.mormanote.model.NoteEntity
 
+
+@OptIn(DelicateCoroutinesApi::class)
+@SuppressLint("CoroutineCreationDuringComposition")
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun HomePage(
     navController: NavHostController,
-    drawerState: CardDrawerState
+    drawerState: CardDrawerState,
+    noteVM: NoteVM = hiltViewModel(),
+    datastoreVM: DatastoreVM = hiltViewModel()
 ) {
 
+
+
+    datastoreVM.putFirstTime(false)
+
+
+    gesturesEnabled = true
+
+
+    /**Get Notes From Offline Repo*/
+    noteVM.getAllNotes()
+    val noteList: List<NoteEntity> =
+        noteVM.notesList.collectAsState().value.sortedByDescending { it.id }
+
     val scope = rememberCoroutineScope()
+
+    GlobalScope.launch (Dispatchers.IO){
+        for (note in noteList){
+            Firebase.firestore
+                .collection(Firebase.auth.uid.toString())
+                .document(note.id.toString())
+                .set(note)
+                .addOnSuccessListener {
+                    Log.e("3636", "Adding note to firebase: $note" )
+                }
+                .addOnFailureListener {
+                    errorSnackBar(scope,it.message.toString())
+                }
+        }
+    }
+
+    val context = LocalContext.current
+    Toast.makeText(context,noteList.size.toString(),Toast.LENGTH_LONG).show()
+
 
     Column(
         Modifier
@@ -57,125 +84,18 @@ fun HomePage(
             .padding(vertical = 8.dp)
     ) {
 
-        Row(
-            Modifier
-                .fillMaxWidth()
-                .padding(top = 24.dp, start = 16.dp, end = 16.dp),
-            Arrangement.SpaceBetween,
-            Alignment.CenterVertically
-        ) {
+        /**
+         * Top Home Page bar
+         */
+        TopHomeBarScreen(navController, drawerState, scope)
 
-            Row(Modifier.wrapContentSize(), verticalAlignment = Alignment.CenterVertically) {
-
-                RippleIcon(R.drawable.menu) {
-                    scope.launch { if (drawerState.isOpen) drawerState.close() else drawerState.open() }
-                }
-
-                Text(buildAnnotatedString {
-                    withStyle(
-                        SpanStyle(
-                            fontWeight = FontWeight.SemiBold,
-                            color = DarkBlue.copy(alpha = 0.7f),
-                            fontSize = 17.sp,
-                            fontFamily = Font(ysabeauMedium).toFontFamily()
-                        )
-                    ) {
-                        append(" Morma ")
-                    }
-
-                    withStyle(
-                        SpanStyle(
-                            fontWeight = FontWeight.ExtraBold,
-                            color = DarkBlue,
-                            fontSize = 20.sp,
-                            fontFamily = Font(ysabeauBold).toFontFamily()
-                        )
-                    ) {
-                        append("Note")
-                    }
-                })
-
-            }
-
-            RippleIcon(R.drawable.fill_favorite, size = 24.dp)
-
-        }
-
-        Row(
-            Modifier
-                .fillMaxWidth()
-                .padding(top = 24.dp, start = 16.dp, end = 16.dp),
-            verticalAlignment = Alignment.Top
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(64.dp)
-                    .clip(
-                        RoundedCornerShape(
-                            topStart = 32.dp,
-                            bottomStart = 32.dp,
-                            bottomEnd = 32.dp,
-                            topEnd = 12.dp
-                        )
-                    )
-                    .background(DarkBlue),
-                contentAlignment = Alignment.Center
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.profile_placeholder),
-                    contentDescription = null,
-                    modifier = Modifier.size(40.dp),
-                    contentScale = ContentScale.Inside
-                )
-            }
-
-            Spacer(modifier = Modifier.size(10.dp))
-
-            Text(buildAnnotatedString {
-                withStyle(
-                    ParagraphStyle(lineHeight = 28.sp),
-                ) {
-                    withStyle(
-                        SpanStyle(
-                            fontWeight = FontWeight.Normal,
-                            color = DarkBlue.copy(alpha = 0.7f),
-                            fontSize = 18.sp,
-                            fontFamily = Font(ysabeauMedium).toFontFamily()
-                        )
-                    ) {
-                        append("Hi, ${checkHourForResponseToIt()}\n")
-                    }
-
-                    withStyle(
-                        SpanStyle(
-                            fontWeight = FontWeight.ExtraBold,
-                            color = DarkBlue,
-                            fontSize = 22.sp,
-                            fontFamily = Font(ysabeauBold).toFontFamily()
-                        )
-                    ) {
-                        append("Mohsen")
-                    }
-                }
-            })
-
-        }
-
-        Spacer(modifier = Modifier.size(height = 16.dp, width = 24.dp))
-
-        CarouselRecentNotes(navController = navController)
-
+        VerticalStaggered(navController, noteList)
 
     }
 }
 
 
-fun checkHourForResponseToIt(): String = when (Date.calculateHour()) {
-    in 6..10 -> "Good Morning"
-    in 11..14 -> "Good Afternoon"
-    in 15..20 -> "Good Evening"
-    in 21..23 -> " GoodNight"
-    else -> "Good Night"
-}
+
+
 
 

@@ -1,19 +1,10 @@
 package mohsen.morma.mormanote.note
 
-import android.Manifest.permission.RECORD_AUDIO
-import android.app.Activity
-import android.content.pm.PackageManager
-import android.net.Uri
 import android.os.Build
-import androidx.activity.compose.ManagedActivityResultLauncher
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -31,15 +22,20 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
+import androidx.compose.material.Button
+import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.IconButton
+import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.material.TextFieldDefaults
@@ -48,7 +44,6 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.ripple.LocalRippleTheme
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.BottomSheetScaffold
-import androidx.compose.material3.BottomSheetScaffoldState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.SheetState
@@ -75,37 +70,40 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.font.toFontFamily
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
+import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
-import com.airbnb.lottie.compose.LottieAnimation
-import com.airbnb.lottie.compose.LottieCompositionSpec
-import com.airbnb.lottie.compose.LottieConstants
-import com.airbnb.lottie.compose.rememberLottieComposition
+import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
+import com.bumptech.glide.integration.compose.GlideImage
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.launch
 import mohsen.morma.mormanote.R
 import mohsen.morma.mormanote.bottombar.setup.Screen
 import mohsen.morma.mormanote.data.NoteVM
 import mohsen.morma.mormanote.model.FontModel
 import mohsen.morma.mormanote.model.NoteEntity
-import mohsen.morma.mormanote.note.record.AndroidAudioRecorder
-import mohsen.morma.mormanote.note.record_play.AndroidAudioPlayer
+import mohsen.morma.mormanote.ui.theme.BlueLink
 import mohsen.morma.mormanote.ui.theme.Dark
 import mohsen.morma.mormanote.ui.theme.DarkBlue
 import mohsen.morma.mormanote.ui.theme.DarkRed
@@ -115,31 +113,30 @@ import mohsen.morma.mormanote.ui.theme.Orange
 import mohsen.morma.mormanote.ui.theme.Pink
 import mohsen.morma.mormanote.ui.theme.SkyBlue
 import mohsen.morma.mormanote.ui.theme.bKamran
-import mohsen.morma.mormanote.ui.theme.dragonWing
+import mohsen.morma.mormanote.ui.theme.dosis
 import mohsen.morma.mormanote.ui.theme.iranNast
-import mohsen.morma.mormanote.ui.theme.jmh
-import mohsen.morma.mormanote.ui.theme.nexa
+import mohsen.morma.mormanote.ui.theme.italianno
 import mohsen.morma.mormanote.ui.theme.potra
-import mohsen.morma.mormanote.ui.theme.unicorns
 import mohsen.morma.mormanote.ui.theme.ysabeauBold
 import mohsen.morma.mormanote.ui.theme.ysabeauMedium
-import mohsen.morma.mormanote.ui.theme.zero
 import mohsen.morma.mormanote.util.BlueRippleTheme
 import mohsen.morma.mormanote.util.Date
 import mohsen.morma.mormanote.util.RippleIcon
 import mohsen.morma.mormanote.util.WhiteRippleTheme
-import java.io.File
+
+/**
+ * Calculate Date And Time
+ */
+@RequiresApi(Build.VERSION_CODES.O)
+var dateAndTime = Date.calculateDateAndTime()
 
 /**font*/
 var fontSelected: MutableState<Int> = mutableIntStateOf(ysabeauMedium)
 val fontList = listOf(
     FontModel("ysabeau", ysabeauMedium),
-    FontModel("nexa", nexa),
-    FontModel("dragonWing", dragonWing),
-    FontModel("jmh", jmh),
+    FontModel("dosis", dosis),
     FontModel("potra", potra),
-    FontModel("unicorns", unicorns),
-    FontModel("zero", zero),
+    FontModel("italianno", italianno),
     FontModel("کامران", bKamran),
     FontModel("ایران نستعلیق", iranNast)
 )
@@ -159,7 +156,7 @@ var textColorSelected by mutableStateOf(textColorList[0])
 
 /**Background Image*/
 val bgPicList = listOf(
-    R.drawable.transparent,
+//    R.drawable.transparent,
     R.drawable.pic2,
     R.drawable.pic5,
     R.drawable.pic6,
@@ -172,14 +169,13 @@ var bgPicSelected by mutableStateOf<Int?>(null)
 var bgIconTint = mutableStateOf(DarkBlue)
 
 /**Background Color*/
-const val bgAlpha = 0.6f
 val bgColorList = listOf(
     White,
     Pink,
     Orange,
     SkyBlue,
     LightYellow,
-    Green.copy(bgAlpha)
+    DarkBlue
 )
 var bgColorSelected by mutableStateOf(bgColorList[0])
 
@@ -193,57 +189,54 @@ val iconAlignList = listOf(
 var iconAlignSelected by mutableIntStateOf(iconAlignList[0])
 var textAlignSelected by mutableStateOf(TextAlign.Start)
 
-/**Voice File*/
-var audioFile: File? = null
+/**fontSize*/
+val fontSizeList = listOf(15, 18, 20, 22, 24, 28, 30)
+var fontSizeSelected by mutableIntStateOf(fontSizeList[3])
 
-/**Dialog*/
-var isShowDialog by mutableStateOf(false)
+/**text link*/
+var textLink by mutableStateOf(TextFieldValue(""))
+var isTextLinkDialogShow by mutableStateOf(false)
 
-@OptIn(ExperimentalMaterial3Api::class)
+
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalGlideComposeApi::class
+)
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun NotePage(
     navController: NavHostController,
     noteVM: NoteVM = hiltViewModel(),
-    activity: Activity,
-    cacheDir: File?
+    noteId: Int = -1,
+    startWithGallery: String = "",
+    link: String = ""
 ) {
-
-    /**
-     * Record and Play Record File
-     * */
-    val recorder by lazy {
-        AndroidAudioRecorder(activity.applicationContext)
-    }
-    val player by lazy {
-        AndroidAudioPlayer(activity)
-    }
+    var id = -1
+    if (noteId != -1) id = noteId
+    val note = noteVM.getNotesById(id)
 
     /**
      * Image From Gallery
      */
-    var selectImages by remember { mutableStateOf<Uri?>(null) }
+    var selectImages by remember { mutableStateOf(if (id != -1 && note.gallery != "") note.gallery.toUri() else null) }
     val galleryLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+            Log.e("3636", "in launch: $uri")
             selectImages = uri
         }
 
-    /**
-     * Calculate Date And Time
-     */
-    val dateAndTime = Date.calculateDateAndTime()
+    /** open chrome */
+    val uriHandler = LocalUriHandler.current
 
     /**
      * Text field(Title,Content,CharCount)
      */
     val titleTextFieldValue = remember {
-        mutableStateOf(TextFieldValue(""))
+        mutableStateOf(TextFieldValue(if (id != -1) note.title else ""))
     }
     val contentTextFieldValue = remember {
-        mutableStateOf(TextFieldValue(""))
+        mutableStateOf(TextFieldValue(if (id != -1) note.content else ""))
     }
     var charactersCount by remember {
-        mutableIntStateOf(contentTextFieldValue.value.text.length)
+        mutableIntStateOf(if (id != -1) note.charCount else contentTextFieldValue.value.text.length)
     }
 
     /**
@@ -271,15 +264,11 @@ fun NotePage(
         }
     }
 
+    val config = LocalConfiguration.current
+
     BottomSheetScaffold(
         sheetContent = {
-            SheetContent(
-                galleryLauncher,
-                bottomSheetScaffoldState,
-                recorder,
-                player,
-                activity
-            )
+            SheetContent()
         },
         scaffoldState = bottomSheetScaffoldState,
         sheetPeekHeight = sheetHeight,
@@ -288,6 +277,48 @@ fun NotePage(
         sheetContainerColor = DarkBlue,
         sheetDragHandle = { BottomSheetDefaults.DragHandle(color = White) },
     ) {
+
+
+        LaunchedEffect(key1 = true) {
+            if (startWithGallery != "") {
+                galleryLauncher.launch("image/*")
+            }
+        }
+
+        LaunchedEffect(key1 = true) {
+            if (link != "") {
+                isTextLinkDialogShow = true
+            }
+        }
+
+        LaunchedEffect(key1 = true) {
+            if (id != -1) {
+                fontSelected.value = note.font
+                fontCounter = note.fontCounter
+                textColorSelected = Color(note.color)
+                bgIconTint.value = Color(note.iconTintSelected)
+                bgPicSelected = note.backgroundPic
+                if (note.gallery != "") selectImages = note.gallery.toUri()
+                bgColorSelected = Color(note.backgroundColor)
+                iconAlignSelected = note.iconAlign
+                textAlignSelected = textAlign(note)
+                fontSizeSelected = note.fontSize
+                textLink = TextFieldValue(note.link)
+            } else {
+                fontSelected.value = ysabeauMedium
+                fontCounter = 0
+                textColorSelected = DarkBlue
+                bgIconTint.value = DarkBlue
+                bgPicSelected = null
+                selectImages = null
+                bgColorSelected = White
+                iconAlignSelected = iconAlignList[0]
+                textAlignSelected = TextAlign.Start
+                fontSizeSelected = fontSizeList[3]
+                textLink = TextFieldValue("")
+            }
+        }
+
         Box(
             Modifier
                 .fillMaxSize()
@@ -297,7 +328,8 @@ fun NotePage(
             /**
              * Background Image
              */
-            if (bgPicSelected != null && bgPicSelected != bgPicList[0]) {
+            if (bgPicSelected != null && bgPicSelected != bgPicList[0] && bgPicSelected != 0) {
+                Log.e("3636", "hello: $bgPicSelected")
                 Image(
                     painter = painterResource(bgPicSelected!!),
                     contentDescription = null,
@@ -305,8 +337,8 @@ fun NotePage(
                         .fillMaxSize(),
                     contentScale = ContentScale.FillBounds
                 )
-            }
 
+            }
 
             Column(
                 Modifier
@@ -331,31 +363,82 @@ fun NotePage(
                     }
 
                     Row(Modifier.wrapContentSize()) {
+
                         RippleIcon(icon = R.drawable.check, size = 32.dp, tint = bgIconTint.value) {
                             if (titleTextFieldValue.value.text.isNotBlank() || contentTextFieldValue.value.text.isNotBlank()) {
+
+                                var bgImage = 0
+                                bgPicSelected?.let { bgImage = it }
+
+                                var gallery = ""
+                                selectImages?.let {
+                                    gallery = it.toString()
+                                }
+
+                                if (id != -1) {
+                                    Log.e("3636", "Update")
+                                    noteVM.updateNote(
+                                        NoteEntity(
+                                            title = titleTextFieldValue.value.text,
+                                            content = contentTextFieldValue.value.text,
+                                            font = fontSelected.value,
+                                            fontCounter = fontCounter,
+                                            fontSize = fontSizeSelected,
+                                            date = dateAndTime,
+                                            charactersCount,
+                                            textLink.text,
+                                            textColorSelected.toArgb(),
+                                            bgColorSelected.toArgb(),
+                                            bgImage,
+                                            bgIconTint.value.toArgb(),
+                                            textAlignSelected.toString(),
+                                            iconAlignSelected,
+                                            gallery,
+                                            note.id,
+                                            Firebase.auth.uid.toString()
+                                        )
+                                    )
+                                } else {
+                                    Log.e("3636", "add")
+
 
                                     noteVM.insertNote(
                                         NoteEntity(
                                             title = titleTextFieldValue.value.text,
                                             content = contentTextFieldValue.value.text,
                                             font = fontSelected.value,
+                                            fontCounter,
+                                            fontSize = fontSizeSelected,
                                             date = dateAndTime,
+                                            charactersCount,
+                                            textLink.text,
                                             textColorSelected.toArgb(),
                                             bgColorSelected.toArgb(),
-                                            2,
+                                            bgImage,
                                             bgIconTint.value.toArgb(),
                                             textAlignSelected.toString(),
-                                            selectImages.toString()
+                                            iconAlignSelected,
+                                            gallery,
+                                            uid = Firebase.auth.uid.toString()
                                         )
                                     )
-
+                                }
                                 navController.navigate(Screen.HomeScreen.route) {
                                     popUpTo(0)
                                 }
                             }
                         }
 
-                        Spacer(modifier = Modifier.size(0.dp))
+                        RippleIcon(
+                            icon = R.drawable.gallery,
+                            size = 27.dp,
+                            tint = bgIconTint.value
+                        ) {
+                            galleryLauncher.launch("image/*")
+                            scope.launch {
+                                bottomSheetScaffoldState.bottomSheetState.hide()
+                            }
+                        }
 
                         RippleIcon(icon = R.drawable.more, size = 27.dp, tint = bgIconTint.value) {
                             focus.clearFocus()
@@ -366,8 +449,8 @@ fun NotePage(
                                     bottomSheetScaffoldState.bottomSheetState.show()
                             }
                         }
-                    }
 
+                    }
                 }
 
                 /**
@@ -406,12 +489,56 @@ fun NotePage(
                  * date text
                  */
                 Text(
-                    text = "${Date.calculateDateAndTime()} | $charactersCount characters",
+                    text = "$dateAndTime | $charactersCount characters",
                     color = Color.Gray,
                     fontFamily = Font(ysabeauMedium).toFontFamily(),
                     fontSize = 17.sp,
                     modifier = Modifier.padding(start = 18.dp)
                 )
+                /**Text Link UI*/
+                if (textLink.text != "") {
+                    SheetSpacer(10.dp)
+
+                    Row(modifier = Modifier.fillMaxWidth(),verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            text = if (textLink.text.contains("https://"))
+                                textLink.text
+                            else if(textLink.text.contains("www.") && textLink.text.contains(".com") && !textLink.text.contains("https://") )
+                                "https://${textLink.text}"
+                            else
+                                textLink.text,
+                            fontFamily = Font(ysabeauBold).toFontFamily(),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            fontSize = 20.sp,
+                            color = BlueLink,
+                            textDecoration = TextDecoration.Underline,
+                            modifier = Modifier
+                                .widthIn(max = (config.screenWidthDp - 64).dp)
+                                .padding(start = 18.dp)
+                                .clickable {
+                                    if (textLink.text.contains("https://"))
+                                        uriHandler.openUri(textLink.text)
+                                    else if (textLink.text.contains("www.") && textLink.text.contains(
+                                            ".com"
+                                        ) && !textLink.text.contains("https://")
+                                    )
+                                        uriHandler.openUri("https://${textLink.text}")
+                                    else
+                                        uriHandler.openUri("https://www.google.com/search?q=${textLink.text}")
+                                }
+                        )
+                        IconButton(onClick = { isTextLinkDialogShow = true }) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.edit),
+                                contentDescription = null,
+                                tint = BlueLink,
+                                modifier = Modifier.size(24.dp)
+                            )
+                        }
+                    }
+
+                }
 
                 /**
                  * Image From Gallery
@@ -426,72 +553,16 @@ fun NotePage(
                             .fillMaxHeight(0.5f)
                             .clip(RoundedCornerShape(16.dp)), contentAlignment = Alignment.TopEnd
                     ) {
-
-                        AsyncImage(
+                        GlideImage(
                             model = selectImages,
                             contentDescription = null,
                             modifier = Modifier.fillMaxSize(),
                             contentScale = ContentScale.FillBounds
                         )
-
-                        RippleIcon(icon = R.drawable.delete, size = 28.dp) {
-                            selectImages = null
-                        }
-
-
+                        RippleIcon(icon = R.drawable.delete, size = 28.dp) { selectImages = null }
                     }
                 }
 
-                /**
-                 * audio section
-                 */
-                if (audioFile != null) {
-                    SheetSpacer(10.dp)
-                    var isPlaying by remember {
-                        mutableStateOf(false)
-                    }
-
-                    val composition by rememberLottieComposition(
-                        spec = LottieCompositionSpec.RawRes(if (bgIconTint.value == White) R.raw.audio_wave_white else R.raw.audio_wave_darkblue)
-                    )
-
-                    Row(
-                        modifier = Modifier
-                            .size(width = 100.dp, height = 24.dp)
-                            .clip(RoundedCornerShape(16.dp)),
-                        Arrangement.End,
-                        Alignment.CenterVertically
-                    ) {
-
-                        player.player()?.setOnCompletionListener { isPlaying = false }
-
-                        SheetSpacer(16.dp)
-
-                        LottieAnimation(
-                            composition = composition,
-                            iterations = LottieConstants.IterateForever,
-                            isPlaying = isPlaying,
-                            contentScale = ContentScale.FillWidth,
-                            modifier = Modifier
-                                .size(width = 128.dp, height = 48.dp)
-                                .clickable(
-                                    onClick = {
-                                        isPlaying = !isPlaying
-                                        if (isPlaying) {
-                                            File(cacheDir, "audio.mp3").also {
-                                                player.playAudio(it)
-                                                audioFile = it
-                                            }
-                                        } else {
-                                            player.pause()
-                                        }
-                                    },
-                                    indication = null,
-                                    interactionSource = interactionButtonSource.value
-                                )
-                        )
-                    }
-                }
 
                 /**
                  * content text field
@@ -513,7 +584,7 @@ fun NotePage(
                         ),
                         textStyle = TextStyle(
                             color = textColorSelected,
-                            fontSize = 22.sp,
+                            fontSize = fontSizeSelected.sp,
                             fontFamily = Font(fontSelected.value).toFontFamily(),
                             textAlign = textAlignSelected
                         ),
@@ -523,112 +594,81 @@ fun NotePage(
 
             }
         }
-    }
 
-    /**
-     * Record Audio Dialog
-     */
-    if (isShowDialog) ShowDialog(recorder, cacheDir)
+        if (isTextLinkDialogShow) EnterLinkDialog()
+
+    }
 
 }
 
 @Composable
-fun ShowDialog(recorder: AndroidAudioRecorder, cacheDir: File?) {
-
-    var isPlay by remember {
-        mutableStateOf(true)
+fun EnterLinkDialog() {
+    Dialog(onDismissRequest = { isTextLinkDialogShow = false }) {
+        LinkDialogContent()
     }
+}
 
-    val infinite = rememberInfiniteTransition()
+@Composable
+fun LinkDialogContent() {
 
-    val rotate by infinite.animateFloat(
-        initialValue = 0f,
-        targetValue = 360f,
-        animationSpec = infiniteRepeatable(tween(2000, 0), RepeatMode.Reverse)
-    )
-
-    File(cacheDir, "audio.mp3").also {
-        recorder.start(it)
-        audioFile = it
-        isPlay = true
-    }
-
-
-    Dialog(
-        onDismissRequest = { isShowDialog = false },
-        properties = DialogProperties()
+    Column(
+        Modifier
+            .fillMaxWidth(1f)
+            .fillMaxHeight(0.2f)
+            .clip(RoundedCornerShape(16.dp))
+            .background(White, RoundedCornerShape(16.dp)),
+        Arrangement.Center,
+        Alignment.CenterHorizontally
     ) {
-        Row(
-            Modifier
-                .fillMaxWidth(0.9f)
-                .height(128.dp)
-                .background(White, RoundedCornerShape(16.dp))
-                .clip(RoundedCornerShape(16.dp)), Arrangement.Center, Alignment.CenterVertically
+
+        OutlinedTextField(
+            value = textLink,
+            onValueChange = { textLink = it },
+            modifier = Modifier.fillMaxWidth(0.85f),
+            singleLine = true,
+            leadingIcon = { RippleIcon(icon = R.drawable.web,tint= DarkBlue,size=28.dp) },
+            colors = TextFieldDefaults.textFieldColors(
+                focusedIndicatorColor = DarkBlue,
+                backgroundColor = White,
+                cursorColor = DarkBlue
+            ),
+            textStyle = TextStyle(
+                color = DarkBlue,
+                fontFamily = Font(fontSelected.value).toFontFamily(),
+                fontSize = 18.sp
+            ),
+            keyboardOptions = KeyboardOptions(
+                imeAction = ImeAction.Done,
+                keyboardType = KeyboardType.Uri
+            ),
+            keyboardActions = KeyboardActions(onDone = { isTextLinkDialogShow = false })
+        )
+
+        SheetSpacer(10.dp)
+
+        Button(
+            onClick = { isTextLinkDialogShow = false },
+            colors = ButtonDefaults.buttonColors(backgroundColor = DarkBlue)
         ) {
-
-            Box(
-                modifier = Modifier
-                    .size(64.dp)
-                    .border(1.dp, DarkBlue, CircleShape)
-                    .rotate(if (isPlay) rotate else 0f)
-                    .background(Transparent, CircleShape),
-                contentAlignment = Alignment.Center
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(64.dp)
-                        .background(DarkBlue, CircleShape),
-                    contentAlignment = Alignment.Center
-                ) {
-                    RippleIcon(
-                        icon = if (isPlay) R.drawable.pause else R.drawable.play,
-                        tint = White,
-                        36.dp,
-                        WhiteRippleTheme
-                    ) {
-                        isPlay = if (isPlay) {
-                            recorder.pause()
-                            false
-                        } else {
-                            recorder.resume()
-                            true
-                        }
-                    }
-                }
-            }
-
-
-            SheetSpacer(56.dp)
-
-            Box(
-                modifier = Modifier
-                    .size(64.dp)
-                    .background(DarkBlue, CircleShape),
-                contentAlignment = Alignment.Center
-            ) {
-                RippleIcon(icon = R.drawable.stop, tint = White, 36.dp, WhiteRippleTheme) {
-                    recorder.stop()
-                    isPlay = false
-                    isShowDialog = false
-                }
-            }
-
+            Text(
+                text = stringResource(R.string.done),
+                fontWeight = FontWeight.SemiBold,
+                fontFamily = Font(ysabeauMedium).toFontFamily(),
+                color = White
+            )
         }
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+
+private fun textAlign(note: NoteEntity) =
+    if (note.alignment == "Start") TextAlign.Start else if (note.alignment == "End") TextAlign.End else if (note.alignment == "Center") TextAlign.Center else TextAlign.Justify
+
+
 @Composable
-fun SheetContent(
-    galleryLauncher: ManagedActivityResultLauncher<String, Uri?>,
-    sheetState: BottomSheetScaffoldState,
-    recorder: AndroidAudioRecorder,
-    player: AndroidAudioPlayer,
-    activity: Activity,
-) {
+fun SheetContent() {
 
     fontSelected.value = fontList[fontCounter].font
-    val scope = rememberCoroutineScope()
 
     val rowAlpha = 0.07f
 
@@ -703,6 +743,41 @@ fun SheetContent(
                     }
                 }
 
+            }
+        }
+
+        SheetSpacer()
+
+        /**
+         * Font Size
+         */
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .height(52.dp)
+                .background(SkyBlue.copy(rowAlpha), RoundedCornerShape(16.dp)),
+            Arrangement.SpaceEvenly, Alignment.CenterVertically
+        ) {
+            fontSizeList.forEach {
+                Box(
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clip(CircleShape)
+                        .selectable(
+                            selected = (fontSizeSelected == it),
+                            onClick = { fontSizeSelected = it },
+                            role = Role.RadioButton
+                        ),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = it.toString(),
+                        fontSize = it.sp,
+                        color = White,
+                        textDecoration = if (fontSizeSelected == it) TextDecoration.Underline else TextDecoration.None,
+                        fontFamily = Font(ysabeauMedium).toFontFamily()
+                    )
+                }
             }
         }
 
@@ -807,7 +882,11 @@ fun SheetContent(
                             .border(2.dp, White, CircleShape)
                             .selectable(
                                 selected = (bgColorSelected == it),
-                                onClick = { bgColorSelected = it },
+                                onClick = {
+                                    bgColorSelected = it
+                                    if (bgColorSelected == DarkBlue) bgIconTint.value =
+                                        White else bgIconTint.value = DarkBlue
+                                },
                                 role = Role.RadioButton
                             ),
                         contentAlignment = Alignment.Center
@@ -939,44 +1018,6 @@ fun SheetContent(
 
         SheetSpacer()
 
-        /**
-         * Audio Gallery Row
-         */
-        Row(
-            Modifier
-                .fillMaxWidth()
-                .height(52.dp)
-                .clickable {
-                    recorder.stop()
-                    player.playAudio(audioFile ?: return@clickable)
-                }
-                .background(SkyBlue.copy(rowAlpha), RoundedCornerShape(16.dp)),
-            Arrangement.SpaceEvenly, Alignment.CenterVertically
-        ) {
-            RippleIcon(icon = R.drawable.gallery, tint = White, rippleTheme = WhiteRippleTheme) {
-                galleryLauncher.launch("image/*")
-                scope.launch {
-                    sheetState.bottomSheetState.hide()
-                }
-            }
-
-            RippleIcon(icon = R.drawable.microphone, tint = White, rippleTheme = WhiteRippleTheme) {
-                when (PackageManager.PERMISSION_GRANTED) {
-                    ContextCompat.checkSelfPermission(activity, RECORD_AUDIO) -> {
-                        isShowDialog = true
-                        scope.launch {
-                            sheetState.bottomSheetState.hide()
-                        }
-                    }
-
-                    else -> {
-                        ActivityCompat.requestPermissions(activity, arrayOf(RECORD_AUDIO), 0)
-                    }
-                }
-            }
-
-        }
-
     }
 
 }
@@ -985,3 +1026,4 @@ fun SheetContent(
 fun SheetSpacer(size: Dp = 20.dp) {
     Spacer(modifier = Modifier.size(size))
 }
+

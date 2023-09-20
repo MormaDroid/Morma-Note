@@ -9,16 +9,21 @@ import mohsen.morma.mormanote.ui.theme.DarkBlue
 
 @Entity
 data class NoteEntity(
-    val title: String,
-    val content: String,
-    val font : Int = 800007,
-    val date : String,
-    val color: Int = DarkBlue.toArgb(),
-    val backgroundColor: Int = Color.White.toArgb(),
-    val backgroundPic: Int = 0,
-    val iconTintSelected: Int = DarkBlue.toArgb(),
-    val alignment : String = TextAlign.Start.toString(),
-    val gallery: String = "",
-    val voice : String = "",
-    @PrimaryKey(true) val id  :Int=0
-)
+    var title: String="",
+    var content: String="",
+    var font: Int = 2131230728,
+    var fontCounter: Int = -1,
+    var fontSize: Int = -1,
+    var date: String="",
+    var charCount: Int = 0,
+    var link: String="",
+    var color: Int = DarkBlue.toArgb(),
+    var backgroundColor: Int = Color.White.toArgb(),
+    var backgroundPic: Int = 0,
+    var iconTintSelected: Int = DarkBlue.toArgb(),
+    var alignment: String = TextAlign.Start.toString(),
+    var iconAlign: Int = 0,
+    var gallery: String = "",
+    @PrimaryKey(true) var id: Int = 0,
+    var uid: String = ""
+) 

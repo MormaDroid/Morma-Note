@@ -7,15 +7,15 @@ class NoteRepository @Inject constructor(
     private val dao: NoteDao
 ) {
 
-    suspend fun getNotes() = dao.getNotes()
+    fun getNotes() = dao.getNotes()
 
-    suspend fun searchByTitle(title:String) = dao.searchByTitle(title)
+    fun searchByTitle(title:String) = dao.searchByTitle(title)
 
     fun getNotesById(id:Int) = dao.getNotesById(id)
 
     suspend fun insertNote(note:NoteEntity) = dao.insertNote(note)
 
-    suspend fun deleteNote(note:NoteEntity) = dao.deleteNote(note)
+    fun deleteNote(note:NoteEntity) = dao.deleteNote(note)
 
     suspend fun updateNote(note:NoteEntity) = dao.updateNote(note)
 

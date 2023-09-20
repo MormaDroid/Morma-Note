@@ -10,12 +10,9 @@ import mohsen.morma.mormanote.R
 val ysabeauBold = R.font.ysabeau_bold_italic
 val ysabeauMedium = R.font.ysabeau_medium_italic
 
-val nexa = R.font.nexa
-val dragonWing = R.font.dragon_wing
-val jmh =R.font.jmh
+val dosis = R.font.dosis
+val italianno = R.font.italianno
 val potra = R.font.potra
-val unicorns =R.font.unicorns
-val zero = R.font.zero
 val bKamran = R.font.b_kamran
 val iranNast = R.font.iran_nastaliq
 

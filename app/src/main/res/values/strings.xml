@@ -1,4 +1,25 @@
 <resources>
     <string name="app_name">Morma Note</string>
-    <string name="nothing_note">"There isn't any note to show.\nPlease add a note. "</string>
+    <string name="nothing_note">"Welcome\nThere isn't any note to show.\nPlease add a note. "</string>
+    <string name="morma">" Morma "</string>
+    <string name="note">Note</string>
+    <string name="recent_notes">Recent notes</string>
+    <string name="search">Search</string>
+    <string name="is_delete_note">Do you want to delete this note?</string>
+    <string name="delete_note">Delete note</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="done">Done</string>
+    <string name="login">Login</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="forgot_pass">Forgot password? </string>
+    <string name="dont_have_account">Don\'t have an account? </string>
+    <string name="register">Register now</string>
+    <string name="already_have_account">Already have an account?</string>
+    <string name="login_now">Login now</string>
+    <string name="signup">Signup</string>
+    <string name="full_name">Full Name</string>
+    <string name="valid_email">A valid email is required.</string>
+    <string name="valid_pass">"Password must be at least 6 characters. "</string>
 </resources>

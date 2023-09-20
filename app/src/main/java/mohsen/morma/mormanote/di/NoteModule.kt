@@ -8,6 +8,8 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import mohsen.morma.mormanote.data.NoteDao
 import mohsen.morma.mormanote.data.NoteDatabase
+import mohsen.morma.mormanote.data.dtatstore.DatastoreRepository
+import mohsen.morma.mormanote.data.dtatstore.DatastoreRepositoryImpl
 import javax.inject.Singleton
 
 @Module
@@ -16,15 +18,24 @@ object NoteModule {
 
     @Provides
     @Singleton
-    fun provideNoteDatabase(app : Application) : NoteDatabase {
+    fun provideNoteDatabase(app: Application): NoteDatabase {
         return Room.databaseBuilder(
             app,
             NoteDatabase::class.java,
             "note_db"
-        ).build()
+        ).allowMainThreadQueries().build()
     }
 
-    @Provides @Singleton fun provideDao(noteDatabase: NoteDatabase) : NoteDao = noteDatabase.dao
+    @Provides
+    @Singleton
+    fun provideDao(noteDatabase: NoteDatabase): NoteDao = noteDatabase.dao
+
+    @Provides
+    @Singleton
+    fun provideDatastore(app: Application): DatastoreRepository = DatastoreRepositoryImpl(app)
+
+
+
 
 
 }

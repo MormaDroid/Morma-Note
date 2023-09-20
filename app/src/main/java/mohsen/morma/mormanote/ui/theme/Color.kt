@@ -5,12 +5,13 @@ import androidx.compose.ui.graphics.Color
 val DarkBlue = Color(0xFF1F2F98)
 val DarkRed = Color(0xFF8B0000)
 val LightYellow = Color(0xFFFFD800)
+val Gray = Color(0xFF707070)
 val Dark = Color(0xFF121212)
-val Purple = Color(0xFF800080)
 val Green = Color(0xFF449e48)
 val Pink = Color(0xFFFF218C)
 val  SkyBlue = Color(0xFF21B1FF)
 val Orange = Color(0xFFFF5400)
+val BlueLink = Color(0xFF0070E0)
 
 val Purple80 = Color.Red
 val PurpleGrey80 = Color.Green

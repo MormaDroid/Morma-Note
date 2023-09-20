@@ -4,6 +4,10 @@ sealed class Screen(val route:String){
     object HomeScreen: Screen(route = "HomePage")
     object SettingScreen: Screen(route = "SettingPage")
     object NoteScreen : Screen(route = "NotePage")
+    object SearchScreen : Screen(route = "SearchPage")
 
-    object AllNoteScreen : Screen(route = "AllNotePage")
+    object SignUpScreen  : Screen(route = "SignUpPage")
+    object SignInScreen  : Screen(route = "SignInPage")
+    object ForgotPasswordScreen  : Screen(route = "ForgotPasswordPage")
+
 }

@@ -49,6 +49,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import mohsen.morma.mormanote.R
 import mohsen.morma.mormanote.bottombar.setup.Screen
 import mohsen.morma.mormanote.model.BottomBarModel
+import mohsen.morma.mormanote.setting.appThemeSelected
 import mohsen.morma.mormanote.util.RippleCustomTheme
 import mohsen.morma.mormanote.util.times
 import mohsen.morma.mormanote.util.transform
@@ -209,7 +210,7 @@ fun CustomBottomNavigation(
             .paint(
                 painter = painterResource(R.drawable.bottom_navigation),
                 contentScale = ContentScale.FillHeight,
-                colorFilter = ColorFilter.tint(Color(0xFF1F2F98))
+                colorFilter = ColorFilter.tint(appThemeSelected)
             )
     ) {
         if (showBottomBar) {
@@ -274,7 +275,7 @@ fun FabGroup(
                 ),
             opacity = LinearEasing.transform(0.2f, 0.7f, animationProgress),
             circleSize = 38.dp
-        )
+        ){ navController.navigate(Screen.NoteScreen.route + "?noteId=${-1}?gallery=gallery?link=") }
 
         AnimatedFab(
             icon = R.drawable.note,
@@ -287,11 +288,10 @@ fun FabGroup(
             circleSize = 40.dp
         ) {
             navController.navigate(Screen.NoteScreen.route)
-//            bottomBarState.value = false
         }
 
         AnimatedFab(
-            icon = R.drawable.microphone,
+            icon = R.drawable.web,
             modifier = Modifier.padding(
                 PaddingValues(
                     bottom = 72.dp,
@@ -300,7 +300,9 @@ fun FabGroup(
             ),
             opacity = LinearEasing.transform(0.4f, 0.9f, animationProgress),
             circleSize = 38.dp
-        )
+        ){
+            navController.navigate(Screen.NoteScreen.route + "?noteId=${-1}?gallery=?link=url")
+        }
 
         AnimatedFab(
             modifier = Modifier.scale(1f - LinearEasing.transform(0.5f, 0.85f, animationProgress)),
@@ -315,7 +317,7 @@ fun FabGroup(
                         .transform(0.35f, 0.65f, animationProgress)
                 ),
             onClick = toggleAnimation,
-            backgroundColor = Color(0xFF1F2F98),   //Todo: Remember Theming
+            backgroundColor = appThemeSelected,
             circleSize = 48.dp
         )
     }
@@ -326,7 +328,7 @@ fun AnimatedFab(
     modifier: Modifier,
     icon: Int? = null,
     opacity: Float = 1f,
-    backgroundColor: Color = Color(0xFF1F2F98),  //Todo: Remember Theming
+    backgroundColor: Color = appThemeSelected,
     circleSize: Dp,
     onClick: () -> Unit = {}
 ) {
