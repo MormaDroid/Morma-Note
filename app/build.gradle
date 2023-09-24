@@ -114,7 +114,11 @@ dependencies {
      //Gson for sending data class
     implementation 'com.google.code.gson:gson:2.10.1'
 
+    //Toggle Button
+    implementation("com.robertlevonyan.compose:buttontogglegroup:1.1.1")
 
+    //Fingerprint
+    implementation "androidx.biometric:biometric:1.1.0"
 
 }
 

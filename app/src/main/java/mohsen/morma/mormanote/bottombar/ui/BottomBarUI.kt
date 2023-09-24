@@ -22,7 +22,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.FloatingActionButton
-import androidx.compose.material.FloatingActionButtonDefaults
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.ripple.LocalRippleTheme
@@ -265,7 +264,7 @@ fun FabGroup(
     ) {
 
         AnimatedFab(
-            icon = R.drawable.gallery,
+            icon = R.drawable.background_note,
             modifier = Modifier
                 .padding(
                     PaddingValues(
@@ -275,7 +274,7 @@ fun FabGroup(
                 ),
             opacity = LinearEasing.transform(0.2f, 0.7f, animationProgress),
             circleSize = 38.dp
-        ){ navController.navigate(Screen.NoteScreen.route + "?noteId=${-1}?gallery=gallery?link=") }
+        ){ navController.navigate(Screen.NoteScreen.route + "?noteId=${-1}?bgImg=bgImg?link=") }
 
         AnimatedFab(
             icon = R.drawable.note,
@@ -301,7 +300,7 @@ fun FabGroup(
             opacity = LinearEasing.transform(0.4f, 0.9f, animationProgress),
             circleSize = 38.dp
         ){
-            navController.navigate(Screen.NoteScreen.route + "?noteId=${-1}?gallery=?link=url")
+            navController.navigate(Screen.NoteScreen.route + "?noteId=${-1}?bgImg=?link=url")
         }
 
         AnimatedFab(
@@ -335,7 +334,6 @@ fun AnimatedFab(
     CompositionLocalProvider(LocalRippleTheme provides RippleCustomTheme) {
         FloatingActionButton(
             onClick = onClick,
-            elevation = FloatingActionButtonDefaults.elevation(0.dp, 0.dp, 0.dp, 0.dp),
             backgroundColor = backgroundColor,
             modifier = modifier.scale(1.25f)
         ) {

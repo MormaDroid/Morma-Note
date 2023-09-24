@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -23,7 +22,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.Font
@@ -64,7 +62,7 @@ fun NotePreview(
 
 
 private fun goToFullScreenNote(navController: NavHostController, note: NoteEntity) {
-    navController.navigate(Screen.NoteScreen.route + "?noteId=${note.id}?gallery=?link=")
+    navController.navigate(Screen.NoteScreen.route + "?noteId=${note.id}?bgImg=?link=")
 }
 
 
@@ -83,7 +81,7 @@ private fun CardContent(note: NoteEntity) {
             .background(Color.Transparent)
     ) {
 
-        Log.d("3636", "Gallery: ${note.gallery}")
+
 
         BackgroundImage(note, contentSize, titleSize)
 
@@ -94,7 +92,6 @@ private fun CardContent(note: NoteEntity) {
                 .padding(horizontal = 8.dp, vertical = 8.dp)
         ) {
 
-            GalleryImage(note)
 
             Text(
                 text = note.title,
@@ -102,12 +99,12 @@ private fun CardContent(note: NoteEntity) {
                 modifier = Modifier.fillMaxWidth(),
                 fontFamily = Font(note.font).toFontFamily(),
                 fontSize = 30.sp,
-                maxLines = 2,
+                maxLines = 1,
                 textAlign = updateAlignment(note),
                 color = Color(note.color),
                 overflow = TextOverflow.Ellipsis,
                 onTextLayout = {
-                    titleSize = if(it.didOverflowHeight) (it.multiParagraph.height /1.7 ).dp  else (it.multiParagraph.height).dp
+                    titleSize =  (it.multiParagraph.height).dp
                 }
             )
 
@@ -147,16 +144,15 @@ private fun BackgroundImage(
     contentSize: Dp,
     titleSize: Dp
 ) {
-    val notePreviewHeight =
-        if (note.gallery != "") (contentSize + titleSize + 240.dp) else (contentSize + titleSize + 40.dp)
+    val notePreviewHeight = (contentSize + titleSize + 20.dp)
 
     Log.e("3636", "Height ${note.id} : $notePreviewHeight")
-    if (note.backgroundPic != 0 && note.backgroundPic != 2131165332) {
+    if (note.backgroundPic != 0 && note.backgroundPic != 2131165371) {
         GlideImage(
             model = note.backgroundPic,
             contentDescription = null,
             contentScale = ContentScale.FillBounds,
-            modifier = Modifier.height(notePreviewHeight)
+            modifier = Modifier.height(notePreviewHeight),
         )
     }
 }
@@ -183,30 +179,6 @@ private fun NoteLink(note: NoteEntity) {
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
-}
-
-@Composable
-@OptIn(ExperimentalGlideComposeApi::class)
-private fun GalleryImage(note: NoteEntity) {
-    Log.d("3636", "GalleryImage: ${note.gallery}")
-    if (note.gallery != "") {
-        GlideImage(
-            model = note.gallery,
-            contentDescription = null,
-            contentScale = ContentScale.FillBounds,
-            modifier = Modifier
-                .width(256.dp)
-                .height(200.dp)
-                .clip(RoundedCornerShape(16.dp))
-        )
-        Spacer(modifier = Modifier.size(8.dp))
-    }
-}
-
-@Composable
-@OptIn(ExperimentalGlideComposeApi::class)
-private fun BackgroundImage(note: NoteEntity) {
-
 }
 
 @Composable

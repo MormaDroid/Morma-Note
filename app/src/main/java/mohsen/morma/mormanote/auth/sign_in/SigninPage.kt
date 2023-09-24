@@ -71,9 +71,11 @@ import mohsen.morma.mormanote.data.dtatstore.DatastoreVM
 import mohsen.morma.mormanote.gesturesEnabled
 import mohsen.morma.mormanote.model.NoteEntity
 import mohsen.morma.mormanote.note.SheetSpacer
+import mohsen.morma.mormanote.profileEmail
 import mohsen.morma.mormanote.profileImage
+import mohsen.morma.mormanote.profileName
 import mohsen.morma.mormanote.ui.theme.DarkBlue
-import mohsen.morma.mormanote.ui.theme.ysabeauBold
+import mohsen.morma.mormanote.ui.theme.dosis
 import mohsen.morma.mormanote.ui.theme.ysabeauMedium
 
 
@@ -85,6 +87,8 @@ var signinLoading by mutableStateOf(false)
 
 @Composable
 fun SigninPage(navController: NavHostController) {
+
+
 
     gesturesEnabled = false
 
@@ -205,7 +209,7 @@ private fun SigninScreen(
                         )
                     },
                     isError = signinErrorEmail,
-                    textStyle = TextStyle(),
+                    textStyle = TextStyle(fontFamily = Font(dosis).toFontFamily()),
                     keyboardOptions = KeyboardOptions(
                         imeAction = ImeAction.Next,
                         keyboardType = KeyboardType.Email,
@@ -272,7 +276,7 @@ private fun SigninScreen(
                         )
                         focus.clearFocus(true)
                     }),
-                    textStyle = TextStyle(),
+                    textStyle = TextStyle(fontFamily = Font(dosis).toFontFamily()),
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                     visualTransformation = if (isShowPassword) VisualTransformation.None else PasswordVisualTransformation(),
                     singleLine = true,
@@ -314,7 +318,7 @@ private fun SigninScreen(
                     color = Color.White,
                     fontSize = 20.sp,
                     textAlign = TextAlign.Center,
-                    fontFamily = Font(ysabeauBold).toFontFamily(),
+                    fontFamily = Font(dosis).toFontFamily(),
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(12.dp))
@@ -340,10 +344,7 @@ fun loginByFirebase(
         if (passwordTextField.isNotEmpty() && passwordTextField.length >= 6) {
             signinLoading = true
             signinErrorPassword = false
-            Firebase.auth.signInWithEmailAndPassword(
-                emailTextField,
-                passwordTextField,
-            )
+            Firebase.auth.signInWithEmailAndPassword(emailTextField, passwordTextField)
                 .addOnSuccessListener {
                     val user = Firebase.auth.currentUser
 
@@ -358,26 +359,28 @@ fun loginByFirebase(
                             }
 
                             user?.uid?.let { uid -> datastoreVM.putUserId(uid) }
-                            user?.email?.let { email -> datastoreVM.putEmail(email) }
-                            user?.displayName?.let { name -> datastoreVM.putFullName(name) }
-
-                            Log.e("3636", "loginByFirebase: ${user?.photoUrl.toString()} ")
-
+                            user?.email?.let { email ->
+                                profileEmail = email
+                                datastoreVM.putEmail(email)
+                            }
+                            user?.displayName?.let { name ->
+                                profileName = name
+                                datastoreVM.putFullName(name)
+                            }
                             user?.photoUrl?.let { img ->
                                 datastoreVM.putImgUri(img.toString())
                                 profileImage = img.toString().toInt()
                             }
+                            datastoreVM.putFirstTime(false)
 
-                            navController.navigate(Screen.HomeScreen.route) { popUpTo(0) }
+                            navController.navigate(Screen.HomeScreen.route){popUpTo(0)}
                         }
                         .addOnFailureListener {
+                            signinLoading = false
                             errorSnackBar(scope, it.message.toString())
-
-                            Log.e("3636","Error: ${it.message}")
+                            Log.e("3636","Error in Get: ${it.message}")
                         }
-
                 }
-
                 .addOnFailureListener {
                     signinLoading = false
                     Log.e("3636", "Signup : ${it.message}")

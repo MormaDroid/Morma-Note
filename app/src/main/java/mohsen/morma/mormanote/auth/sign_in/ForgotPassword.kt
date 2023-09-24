@@ -50,8 +50,8 @@ import mohsen.morma.mormanote.auth.snackState
 import mohsen.morma.mormanote.bottombar.setup.Screen
 import mohsen.morma.mormanote.note.SheetSpacer
 import mohsen.morma.mormanote.ui.theme.DarkBlue
+import mohsen.morma.mormanote.ui.theme.dosis
 import mohsen.morma.mormanote.ui.theme.ysabeauBold
-import mohsen.morma.mormanote.ui.theme.ysabeauMedium
 
 
 @Composable
@@ -119,7 +119,7 @@ fun ForgotPassword(navController: NavHostController) {
                     Text(
                         text = "Reset Password ",
                         fontSize = 20.sp,
-                        fontFamily = Font(ysabeauMedium).toFontFamily()
+                        fontFamily = Font(dosis).toFontFamily()
                     )
                 },
                 leadingIcon = {
@@ -188,7 +188,7 @@ fun ForgotPassword(navController: NavHostController) {
                         text = "Reset Password",
                         color = Color.White,
                         fontSize = 20.sp,
-                        fontFamily = Font(ysabeauBold).toFontFamily()
+                        fontFamily = Font(dosis).toFontFamily()
                     )
                 }
 
@@ -205,7 +205,7 @@ fun ForgotPassword(navController: NavHostController) {
                         text = "Return to login",
                         color = DarkBlue,
                         fontSize = 20.sp,
-                        fontFamily = Font(ysabeauBold).toFontFamily()
+                        fontFamily = Font(dosis).toFontFamily()
                     )
                 }
 

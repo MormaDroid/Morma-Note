@@ -7,19 +7,18 @@ import androidx.compose.ui.graphics.Color
 import androidx.hilt.navigation.compose.hiltViewModel
 import dagger.hilt.android.HiltAndroidApp
 import mohsen.morma.mormanote.data.dtatstore.DatastoreVM
-import mohsen.morma.mormanote.setting.appFontSelected
 import mohsen.morma.mormanote.setting.appThemeSelected
+import mohsen.morma.mormanote.setting.checkedState
 
 @HiltAndroidApp
 class G : Application() {
     init {
         @Composable fun Hello(datastoreVM:DatastoreVM = hiltViewModel()){
 
+            datastoreVM.getFingerprint()
+            checkedState = datastoreVM.isUseFingerprint.collectAsState().value
 
-            datastoreVM.getAppFont()
             datastoreVM.getAppColor()
-
-            appFontSelected = datastoreVM.appFont.collectAsState().value
             appThemeSelected = Color(datastoreVM.appColor.collectAsState().value)
         }
     }

@@ -1,11 +1,12 @@
 package mohsen.morma.mormanote.home.top_bar
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -22,16 +23,18 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
+import com.bumptech.glide.integration.compose.GlideImage
 import mohsen.morma.mormanote.R
 import mohsen.morma.mormanote.bottombar.setup.Screen
 import mohsen.morma.mormanote.note.SheetSpacer
 import mohsen.morma.mormanote.profileImage
 import mohsen.morma.mormanote.profileName
-import mohsen.morma.mormanote.setting.appFontSelected
 import mohsen.morma.mormanote.setting.appThemeSelected
+import mohsen.morma.mormanote.ui.theme.dosis
 import mohsen.morma.mormanote.util.Date
-import mohsen.morma.mormanote.util.RippleIcon
 
+@OptIn(ExperimentalGlideComposeApi::class)
 @Composable
 fun ImageProfile(navController: NavHostController) {
 
@@ -44,8 +47,8 @@ fun ImageProfile(navController: NavHostController) {
     ) {
         Row {
 
-            Image(
-                painter = painterResource(id = profileImage ),
+            GlideImage(
+                model = profileImage,
                 contentDescription = null,
                 modifier = Modifier.size(56.dp),
                 contentScale = ContentScale.Inside
@@ -62,7 +65,7 @@ fun ImageProfile(navController: NavHostController) {
                             fontWeight = FontWeight.Normal,
                             color = appThemeSelected.copy(alpha = 0.7f),
                             fontSize = 18.sp,
-                            fontFamily = Font(appFontSelected).toFontFamily()
+                            fontFamily = Font(dosis).toFontFamily()
                         )
                     ) {
                         append("Hi, ${checkHourForResponseToIt()}\n")
@@ -73,7 +76,7 @@ fun ImageProfile(navController: NavHostController) {
                             fontWeight = FontWeight.ExtraBold,
                             color = appThemeSelected,
                             fontSize = 22.sp,
-                            fontFamily = Font(appFontSelected).toFontFamily()
+                            fontFamily = Font(dosis).toFontFamily()
                         )
                     ) {
                         append(profileName)
@@ -83,7 +86,9 @@ fun ImageProfile(navController: NavHostController) {
 
         }
 
-        RippleIcon(icon = R.drawable.search, tint = appThemeSelected) { navController.navigate(Screen.SearchScreen.route) }
+        IconButton(onClick = { navController.navigate(Screen.SearchScreen.route) }) {
+            Icon(painter = painterResource(id = R.drawable.search), contentDescription =null,Modifier.size(28.dp), tint = appThemeSelected )
+        }
 
     }
 

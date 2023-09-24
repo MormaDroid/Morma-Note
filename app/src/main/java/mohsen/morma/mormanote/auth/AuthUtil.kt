@@ -33,8 +33,7 @@ import mohsen.morma.mormanote.R
 import mohsen.morma.mormanote.note.SheetSpacer
 import mohsen.morma.mormanote.ui.theme.BlueLink
 import mohsen.morma.mormanote.ui.theme.DarkBlue
-import mohsen.morma.mormanote.ui.theme.ysabeauBold
-import mohsen.morma.mormanote.ui.theme.ysabeauMedium
+import mohsen.morma.mormanote.ui.theme.dosis
 import java.util.regex.Pattern
 
 val snackState = SnackbarHostState()
@@ -47,14 +46,14 @@ fun AuthTitle(title: String, subTitle: String) {
             color = DarkBlue,
             fontSize = 40.sp,
             fontWeight = FontWeight.Bold,
-            fontFamily = Font(ysabeauBold).toFontFamily()
+            fontFamily = Font(dosis).toFontFamily()
         )
 
         Text(
             text = subTitle,
             color = BlueLink,
             fontSize = 20.sp,
-            fontFamily = Font(ysabeauMedium).toFontFamily()
+            fontFamily = Font(dosis).toFontFamily()
         )
     }
 }
@@ -67,7 +66,7 @@ fun TitleInBox(text: String) {
         color = Color.White,
         fontSize = 40.sp,
         fontWeight = FontWeight.Bold,
-        fontFamily = Font(ysabeauBold).toFontFamily()
+        fontFamily = Font(dosis).toFontFamily()
     )
 
 }
@@ -84,7 +83,7 @@ fun ButtonInBox(text: String, onClick: () -> Unit) {
             text = text,
             color = DarkBlue,
             fontSize = 26.sp,
-            fontFamily = Font(ysabeauBold).toFontFamily()
+            fontFamily = Font(dosis).toFontFamily()
         )
     }
 }
@@ -128,7 +127,7 @@ fun OptionalText(title: Int, clickableText: Int, onClick: () -> Unit) {
         text = stringResource(id = title),
         color = DarkBlue,
         fontSize = 20.sp,
-        fontFamily = Font(ysabeauBold).toFontFamily(),
+        fontFamily = Font(dosis).toFontFamily(),
         modifier = Modifier.clip(RoundedCornerShape(12.dp))
     )
 
@@ -138,7 +137,7 @@ fun OptionalText(title: Int, clickableText: Int, onClick: () -> Unit) {
         text = stringResource(id = clickableText),
         color = BlueLink,
         fontSize = 20.sp,
-        fontFamily = Font(ysabeauBold).toFontFamily(),
+        fontFamily = Font(dosis).toFontFamily(),
         modifier = Modifier
             .clip(RoundedCornerShape(12.dp))
             .clickable(onClick = onClick)
@@ -146,14 +145,14 @@ fun OptionalText(title: Int, clickableText: Int, onClick: () -> Unit) {
 }
 
 @Composable
-fun Loader() {
+fun Loader(size : Int = 128,loadingFile:Int = R.raw.darkblue_loading) {
 
-    val composition by rememberLottieComposition(spec = LottieCompositionSpec.RawRes(R.raw.circle_loader))
+    val composition by rememberLottieComposition(spec = LottieCompositionSpec.RawRes(loadingFile))
 
     LottieAnimation(
         composition = composition,
         modifier = Modifier
-            .size(128.dp),
+            .size(size.dp),
         iterations = LottieConstants.IterateForever,
         clipSpec = LottieClipSpec.Progress(0.0f, 1f)
     )

@@ -16,12 +16,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.toFontFamily
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
@@ -30,8 +31,11 @@ import mohsen.morma.mormanote.bottombar.setup.Screen
 import mohsen.morma.mormanote.data.NoteVM
 import mohsen.morma.mormanote.home.vertical_staggered.VerticalStaggered
 import mohsen.morma.mormanote.ui.theme.DarkBlue
-import mohsen.morma.mormanote.ui.theme.ysabeauMedium
+import mohsen.morma.mormanote.ui.theme.dosis
 import mohsen.morma.mormanote.util.RippleIcon
+
+var searchTextField by mutableStateOf(TextFieldValue(""))
+
 
 @Composable
 fun SearchPage(
@@ -39,11 +43,9 @@ fun SearchPage(
     noteVM: NoteVM = hiltViewModel()
 ) {
 
-    val searchTextField by remember {
-        mutableStateOf("")
-    }
 
-    noteVM.searchByTitle(searchTextField)
+
+    noteVM.searchByTitle(searchTextField.text)
     val searchList = noteVM.searchList.collectAsState().value.sortedByDescending { it.id }
 
     Column(
@@ -52,7 +54,7 @@ fun SearchPage(
             .padding(top = 48.dp), Arrangement.Top, Alignment.CenterHorizontally
     ) {
 
-        SearchTextField(searchTextField, navController)
+        SearchTextField(navController)
 
         Spacer(modifier = Modifier.size(12.dp))
 
@@ -64,17 +66,16 @@ fun SearchPage(
 
 @Composable
 private fun SearchTextField(
-    searchTextField: String,
     navController: NavHostController
 ) {
-    var searchTextField1 = searchTextField
+
     OutlinedTextField(
-        value = searchTextField1,
-        onValueChange = { searchTextField1 = it },
+        value = searchTextField,
+        onValueChange = { searchTextField = it },
         label = {
             Text(
                 text = "Search notes",
-                fontFamily = Font(ysabeauMedium).toFontFamily()
+                fontFamily = Font(dosis).toFontFamily()
             )
         },
         leadingIcon = {

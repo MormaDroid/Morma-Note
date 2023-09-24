@@ -47,17 +47,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import kotlinx.coroutines.delay
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.launch
 import mohsen.morma.mormanote.R
 import mohsen.morma.mormanote.data.NoteVM
 import mohsen.morma.mormanote.home.vertical_staggered.all_notes.BackgroundEachNote
 import mohsen.morma.mormanote.home.vertical_staggered.all_notes.NotePreview
 import mohsen.morma.mormanote.model.NoteEntity
-import mohsen.morma.mormanote.setting.appFontSelected
+import mohsen.morma.mormanote.note.SheetSpacer
 import mohsen.morma.mormanote.setting.appThemeSelected
-import mohsen.morma.mormanote.ui.theme.ysabeauBold
-import mohsen.morma.mormanote.ui.theme.ysabeauMedium
+import mohsen.morma.mormanote.ui.theme.dosis
 import kotlin.properties.Delegates
 
 var isEmptyList by Delegates.notNull<Boolean>()
@@ -91,7 +92,7 @@ private fun EmptyNoteText(heightScreen: Int) {
             text = stringResource(R.string.nothing_note),
             fontSize = 22.sp,
             fontWeight = FontWeight.ExtraBold,
-            fontFamily = Font(appFontSelected).toFontFamily(),
+            fontFamily = Font(dosis).toFontFamily(),
             color = appThemeSelected,
             textAlign = TextAlign.Center
         )
@@ -110,8 +111,16 @@ private fun VerticalStaggeredNote(
         horizontalArrangement = Arrangement.spacedBy(space = 8.dp),
         verticalItemSpacing = 8.dp
     ) {
+
         items(allNotes, key = { it.id }) { note ->
             NoteCard(note, navController)
+        }
+
+        item{
+            SheetSpacer(148.dp)
+        }
+        item{
+            SheetSpacer(148.dp)
         }
     }
 }
@@ -148,6 +157,7 @@ fun NoteCard(note: NoteEntity, navController: NavHostController, noteVM: NoteVM 
                     onClick = {
                         deleteNote = true
                         noteVM.deleteNote(note)
+                        isShowDeleteDialog = false
                     },
                     shape = RoundedCornerShape(16.dp),
                     colors = ButtonDefaults.buttonColors(Color.White)
@@ -155,7 +165,7 @@ fun NoteCard(note: NoteEntity, navController: NavHostController, noteVM: NoteVM 
                     Text(
                         text = stringResource(R.string.yes),
                         fontWeight = FontWeight.Medium,
-                        fontFamily = Font(appFontSelected).toFontFamily(),
+                        fontFamily = Font(dosis).toFontFamily(),
                         fontSize = 16.sp,
                         color = appThemeSelected
                     )
@@ -174,7 +184,7 @@ fun NoteCard(note: NoteEntity, navController: NavHostController, noteVM: NoteVM 
                     Text(
                         text = stringResource(R.string.no),
                         fontWeight = FontWeight.Medium,
-                        fontFamily = Font(appFontSelected).toFontFamily(),
+                        fontFamily = Font(dosis).toFontFamily(),
                         fontSize = 16.sp,
                         color = Color.White
                     )
@@ -205,8 +215,7 @@ fun NoteCard(note: NoteEntity, navController: NavHostController, noteVM: NoteVM 
     /**Delete Note Action*/
     LaunchedEffect(deleteNote) {
         if (deleteNote) {
-            delay(1500)
-            noteVM.deleteNote(note)
+            Firebase.firestore.collection(Firebase.auth.uid.toString()).document(note.id.toString()).delete()
         }
     }
 
@@ -219,7 +228,7 @@ private fun TextDeleteDialog() {
     Text(
         text = stringResource(R.string.is_delete_note),
         fontWeight = FontWeight.Medium,
-        fontFamily = Font(ysabeauMedium).toFontFamily(),
+        fontFamily = Font(dosis).toFontFamily(),
         fontSize = 18.sp,
         color = Color.White
     )
@@ -230,7 +239,7 @@ private fun TitleDeleteDialog() {
     Text(
         text = stringResource(R.string.delete_note),
         fontWeight = FontWeight.ExtraBold,
-        fontFamily = Font(ysabeauBold).toFontFamily(),
+        fontFamily = Font(dosis).toFontFamily(),
         fontSize = 30.sp,
         color = Color.White
     )

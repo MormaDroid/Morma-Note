@@ -2,8 +2,6 @@ package mohsen.morma.mormanote.note
 
 import android.os.Build
 import android.util.Log
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -14,6 +12,8 @@ import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -63,6 +63,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Color.Companion.Black
 import androidx.compose.ui.graphics.Color.Companion.LightGray
 import androidx.compose.ui.graphics.Color.Companion.Transparent
 import androidx.compose.ui.graphics.Color.Companion.White
@@ -89,12 +90,9 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
-import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
-import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
-import com.bumptech.glide.integration.compose.GlideImage
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.launch
@@ -103,10 +101,12 @@ import mohsen.morma.mormanote.bottombar.setup.Screen
 import mohsen.morma.mormanote.data.NoteVM
 import mohsen.morma.mormanote.model.FontModel
 import mohsen.morma.mormanote.model.NoteEntity
+import mohsen.morma.mormanote.setting.appThemeSelected
 import mohsen.morma.mormanote.ui.theme.BlueLink
 import mohsen.morma.mormanote.ui.theme.Dark
 import mohsen.morma.mormanote.ui.theme.DarkBlue
 import mohsen.morma.mormanote.ui.theme.DarkRed
+import mohsen.morma.mormanote.ui.theme.Gray
 import mohsen.morma.mormanote.ui.theme.Green
 import mohsen.morma.mormanote.ui.theme.LightYellow
 import mohsen.morma.mormanote.ui.theme.Orange
@@ -144,7 +144,7 @@ var fontCounter by mutableIntStateOf(0)
 
 /**text Color*/
 val textColorList = listOf(
-    DarkBlue,
+    appThemeSelected,
     DarkRed,
     Orange,
     LightYellow,
@@ -156,7 +156,7 @@ var textColorSelected by mutableStateOf(textColorList[0])
 
 /**Background Image*/
 val bgPicList = listOf(
-//    R.drawable.transparent,
+    R.drawable.transparent,
     R.drawable.pic2,
     R.drawable.pic5,
     R.drawable.pic6,
@@ -166,7 +166,7 @@ val bgPicList = listOf(
     R.drawable.pic10,
 )
 var bgPicSelected by mutableStateOf<Int?>(null)
-var bgIconTint = mutableStateOf(DarkBlue)
+var bgIconTint = mutableStateOf(appThemeSelected)
 
 /**Background Color*/
 val bgColorList = listOf(
@@ -197,8 +197,11 @@ var fontSizeSelected by mutableIntStateOf(fontSizeList[3])
 var textLink by mutableStateOf(TextFieldValue(""))
 var isTextLinkDialogShow by mutableStateOf(false)
 
+var isShowSelectBgImgDialog by mutableStateOf(false)
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalGlideComposeApi::class
+
+
+@OptIn(ExperimentalMaterial3Api::class
 )
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -206,22 +209,12 @@ fun NotePage(
     navController: NavHostController,
     noteVM: NoteVM = hiltViewModel(),
     noteId: Int = -1,
-    startWithGallery: String = "",
+    startWithBgImg: String =  "",
     link: String = ""
 ) {
     var id = -1
     if (noteId != -1) id = noteId
     val note = noteVM.getNotesById(id)
-
-    /**
-     * Image From Gallery
-     */
-    var selectImages by remember { mutableStateOf(if (id != -1 && note.gallery != "") note.gallery.toUri() else null) }
-    val galleryLauncher =
-        rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
-            Log.e("3636", "in launch: $uri")
-            selectImages = uri
-        }
 
     /** open chrome */
     val uriHandler = LocalUriHandler.current
@@ -274,21 +267,14 @@ fun NotePage(
         sheetPeekHeight = sheetHeight,
         modifier = Modifier.fillMaxSize(),
         sheetShape = RoundedCornerShape(topEnd = 16.dp, topStart = 16.dp),
-        sheetContainerColor = DarkBlue,
-        sheetDragHandle = { BottomSheetDefaults.DragHandle(color = White) },
+        sheetContainerColor = appThemeSelected,
+        sheetDragHandle = { BottomSheetDefaults.DragHandle(color = if (appThemeSelected == Gray) Black else White) },
     ) {
 
-
         LaunchedEffect(key1 = true) {
-            if (startWithGallery != "") {
-                galleryLauncher.launch("image/*")
-            }
-        }
+            if (link != "") isTextLinkDialogShow = true
 
-        LaunchedEffect(key1 = true) {
-            if (link != "") {
-                isTextLinkDialogShow = true
-            }
+            if (startWithBgImg != "") isShowSelectBgImgDialog =true
         }
 
         LaunchedEffect(key1 = true) {
@@ -298,7 +284,6 @@ fun NotePage(
                 textColorSelected = Color(note.color)
                 bgIconTint.value = Color(note.iconTintSelected)
                 bgPicSelected = note.backgroundPic
-                if (note.gallery != "") selectImages = note.gallery.toUri()
                 bgColorSelected = Color(note.backgroundColor)
                 iconAlignSelected = note.iconAlign
                 textAlignSelected = textAlign(note)
@@ -308,9 +293,8 @@ fun NotePage(
                 fontSelected.value = ysabeauMedium
                 fontCounter = 0
                 textColorSelected = DarkBlue
-                bgIconTint.value = DarkBlue
+                bgIconTint.value = appThemeSelected
                 bgPicSelected = null
-                selectImages = null
                 bgColorSelected = White
                 iconAlignSelected = iconAlignList[0]
                 textAlignSelected = TextAlign.Start
@@ -370,11 +354,6 @@ fun NotePage(
                                 var bgImage = 0
                                 bgPicSelected?.let { bgImage = it }
 
-                                var gallery = ""
-                                selectImages?.let {
-                                    gallery = it.toString()
-                                }
-
                                 if (id != -1) {
                                     Log.e("3636", "Update")
                                     noteVM.updateNote(
@@ -393,7 +372,6 @@ fun NotePage(
                                             bgIconTint.value.toArgb(),
                                             textAlignSelected.toString(),
                                             iconAlignSelected,
-                                            gallery,
                                             note.id,
                                             Firebase.auth.uid.toString()
                                         )
@@ -418,7 +396,6 @@ fun NotePage(
                                             bgIconTint.value.toArgb(),
                                             textAlignSelected.toString(),
                                             iconAlignSelected,
-                                            gallery,
                                             uid = Firebase.auth.uid.toString()
                                         )
                                     )
@@ -426,17 +403,6 @@ fun NotePage(
                                 navController.navigate(Screen.HomeScreen.route) {
                                     popUpTo(0)
                                 }
-                            }
-                        }
-
-                        RippleIcon(
-                            icon = R.drawable.gallery,
-                            size = 27.dp,
-                            tint = bgIconTint.value
-                        ) {
-                            galleryLauncher.launch("image/*")
-                            scope.launch {
-                                bottomSheetScaffoldState.bottomSheetState.hide()
                             }
                         }
 
@@ -541,30 +507,6 @@ fun NotePage(
                 }
 
                 /**
-                 * Image From Gallery
-                 */
-                if (selectImages != null) {
-
-                    SheetSpacer(20.dp)
-
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth(1f)
-                            .fillMaxHeight(0.5f)
-                            .clip(RoundedCornerShape(16.dp)), contentAlignment = Alignment.TopEnd
-                    ) {
-                        GlideImage(
-                            model = selectImages,
-                            contentDescription = null,
-                            modifier = Modifier.fillMaxSize(),
-                            contentScale = ContentScale.FillBounds
-                        )
-                        RippleIcon(icon = R.drawable.delete, size = 28.dp) { selectImages = null }
-                    }
-                }
-
-
-                /**
                  * content text field
                  */
                 CompositionLocalProvider(LocalTextSelectionColors provides BlueRippleTheme.customTextSelectionColors) {
@@ -596,6 +538,7 @@ fun NotePage(
         }
 
         if (isTextLinkDialogShow) EnterLinkDialog()
+        if (isShowSelectBgImgDialog) BgImgDialog()
 
     }
 
@@ -605,6 +548,83 @@ fun NotePage(
 fun EnterLinkDialog() {
     Dialog(onDismissRequest = { isTextLinkDialogShow = false }) {
         LinkDialogContent()
+    }
+}
+
+@Composable
+fun BgImgDialog() {
+    Dialog(onDismissRequest = { isShowSelectBgImgDialog = false }) {
+        BgImgDialogContent()
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+fun BgImgDialogContent() {
+
+
+    val bgPicListWithoutTransparent = listOf(
+        R.drawable.pic2,
+        R.drawable.pic5,
+        R.drawable.pic6,
+        R.drawable.pic7,
+        R.drawable.pic8,
+        R.drawable.pic9,
+        R.drawable.pic10,
+    )
+
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth(1f)
+            .fillMaxHeight(0.4f)
+            .clip(RoundedCornerShape(18.dp))
+            .background(Color.White),
+        Arrangement.Center,
+        Alignment.CenterHorizontally
+    ) {
+        FlowRow(
+            maxItemsInEachRow = 3,
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalArrangement = Arrangement.Center
+        ) {
+
+            for (bgImage in bgPicListWithoutTransparent) {
+                Image(
+                    painter = painterResource(id = bgImage),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(96.dp)
+                        .padding(12.dp)
+                        .clip(CircleShape)
+                        .clickable {
+                            bgPicSelected = bgImage
+
+                            bgPicSelected = if (bgPicSelected == bgPicList[0]) null else bgImage
+
+                            if (
+                                bgPicSelected == bgPicList[0] ||
+                                bgPicSelected == bgPicList[6]
+                            )
+                                bgIconTint.value = DarkBlue
+                            else if (
+                                bgPicSelected == bgPicList[1] ||
+                                bgPicSelected == bgPicList[2] ||
+                                bgPicSelected == bgPicList[3] ||
+                                bgPicSelected == bgPicList[4] ||
+                                bgPicSelected == bgPicList[5] ||
+                                bgPicSelected == bgPicList[7]
+                            )
+                                bgIconTint.value = White
+
+                            isShowSelectBgImgDialog = false
+                        },
+                    contentScale = ContentScale.FillBounds
+                )
+
+            }
+
+        }
     }
 }
 
@@ -670,14 +690,14 @@ fun SheetContent() {
 
     fontSelected.value = fontList[fontCounter].font
 
-    val rowAlpha = 0.07f
+    val rowAlpha = 0.1f
 
     Column(
         Modifier
             .fillMaxWidth()
             .height((LocalConfiguration.current.screenHeightDp / 1.7).dp)
             .padding(horizontal = 12.dp)
-            .background(DarkBlue)
+            .background(appThemeSelected)
     ) {
 
         /**
@@ -687,16 +707,16 @@ fun SheetContent() {
             Modifier
                 .fillMaxWidth()
                 .height(52.dp)
-                .background(SkyBlue.copy(rowAlpha), RoundedCornerShape(16.dp)),
+                .background(LightGray.copy(rowAlpha), RoundedCornerShape(16.dp)),
             Arrangement.SpaceBetween,
             Alignment.CenterVertically
         ) {
             Text(
                 text = "Typeface",
                 fontSize = 18.sp,
-                fontFamily = Font(ysabeauBold).toFontFamily(),
+                fontFamily = Font(dosis).toFontFamily(),
                 modifier = Modifier.padding(start = 8.dp),
-                color = LightGray
+                color = if (appThemeSelected == Gray) Black else LightGray
             )
 
             Row(
@@ -711,10 +731,8 @@ fun SheetContent() {
                         Icon(
                             painter = painterResource(id = R.drawable.left_arrow),
                             contentDescription = null,
-                            tint = White,
-                            modifier = Modifier
-                                .size(24.dp)
-
+                            tint = if (appThemeSelected == Gray) Black else White,
+                            modifier = Modifier.size(24.dp)
                         )
                     }
                 }
@@ -724,7 +742,7 @@ fun SheetContent() {
                     fontSize = 22.sp,
                     fontWeight = FontWeight.Bold,
                     fontFamily = Font(fontList[fontCounter].font).toFontFamily(),
-                    color = White
+                    color = if (appThemeSelected == Gray) Black else White
                 )
 
                 CompositionLocalProvider(LocalRippleTheme provides WhiteRippleTheme) {
@@ -734,7 +752,7 @@ fun SheetContent() {
                         Icon(
                             painter = painterResource(id = R.drawable.left_arrow),
                             contentDescription = null,
-                            tint = White,
+                            tint = if (appThemeSelected == Gray) Black else White,
                             modifier = Modifier
                                 .size(24.dp)
                                 .rotate(180f)
@@ -755,7 +773,7 @@ fun SheetContent() {
             Modifier
                 .fillMaxWidth()
                 .height(52.dp)
-                .background(SkyBlue.copy(rowAlpha), RoundedCornerShape(16.dp)),
+                .background(LightGray.copy(rowAlpha), RoundedCornerShape(16.dp)),
             Arrangement.SpaceEvenly, Alignment.CenterVertically
         ) {
             fontSizeList.forEach {
@@ -773,9 +791,9 @@ fun SheetContent() {
                     Text(
                         text = it.toString(),
                         fontSize = it.sp,
-                        color = White,
+                        color = if (appThemeSelected == Gray) Black else White,
                         textDecoration = if (fontSizeSelected == it) TextDecoration.Underline else TextDecoration.None,
-                        fontFamily = Font(ysabeauMedium).toFontFamily()
+                        fontFamily = Font(dosis).toFontFamily()
                     )
                 }
             }
@@ -790,7 +808,7 @@ fun SheetContent() {
             Modifier
                 .fillMaxWidth()
                 .height(52.dp)
-                .background(SkyBlue.copy(rowAlpha), RoundedCornerShape(16.dp)),
+                .background(LightGray.copy(rowAlpha), RoundedCornerShape(16.dp)),
             Arrangement.SpaceBetween,
             Alignment.CenterVertically
         ) {
@@ -798,9 +816,9 @@ fun SheetContent() {
                 text = "Text Color",
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
-                fontFamily = Font(ysabeauBold).toFontFamily(),
+                fontFamily = Font(dosis).toFontFamily(),
                 modifier = Modifier.padding(start = 8.dp),
-                color = LightGray
+                color = if (appThemeSelected == Gray) Black else LightGray
             )
 
             Row(
@@ -829,7 +847,7 @@ fun SheetContent() {
                                 imageVector = Icons.Default.Check,
                                 contentDescription = null,
                                 modifier = Modifier.size(16.dp),
-                                tint = White
+                                tint = if (appThemeSelected == Gray) Black else White
                             )
                         else
                             Icon(
@@ -853,7 +871,7 @@ fun SheetContent() {
             Modifier
                 .fillMaxWidth()
                 .height(52.dp)
-                .background(SkyBlue.copy(rowAlpha), RoundedCornerShape(16.dp)),
+                .background(LightGray.copy(rowAlpha), RoundedCornerShape(16.dp)),
             Arrangement.SpaceBetween,
             Alignment.CenterVertically
         ) {
@@ -861,9 +879,9 @@ fun SheetContent() {
                 text = "Background Color",
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
-                fontFamily = Font(ysabeauBold).toFontFamily(),
+                fontFamily = Font(dosis).toFontFamily(),
                 modifier = Modifier.padding(start = 8.dp),
-                color = LightGray
+                color = if (appThemeSelected == Gray) Black else LightGray
             )
 
             Row(
@@ -919,7 +937,7 @@ fun SheetContent() {
             Modifier
                 .fillMaxWidth()
                 .height(52.dp)
-                .background(SkyBlue.copy(rowAlpha), RoundedCornerShape(16.dp)),
+                .background(LightGray.copy(rowAlpha), RoundedCornerShape(16.dp)),
             Arrangement.SpaceBetween,
             Alignment.CenterVertically
         ) {
@@ -954,7 +972,6 @@ fun SheetContent() {
                                 )
                                     bgIconTint.value = White
 
-
                             }
                         ))
                     {
@@ -979,7 +996,7 @@ fun SheetContent() {
             Modifier
                 .fillMaxWidth()
                 .height(52.dp)
-                .background(SkyBlue.copy(rowAlpha), RoundedCornerShape(16.dp)),
+                .background(LightGray.copy(rowAlpha), RoundedCornerShape(16.dp)),
             Arrangement.SpaceAround, Alignment.CenterVertically
         ) {
 

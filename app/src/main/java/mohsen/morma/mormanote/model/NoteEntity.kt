@@ -23,7 +23,6 @@ data class NoteEntity(
     var iconTintSelected: Int = DarkBlue.toArgb(),
     var alignment: String = TextAlign.Start.toString(),
     var iconAlign: Int = 0,
-    var gallery: String = "",
     @PrimaryKey(true) var id: Int = 0,
     var uid: String = ""
 ) 

@@ -75,7 +75,11 @@ import mohsen.morma.mormanote.bottombar.setup.Screen
 import mohsen.morma.mormanote.data.dtatstore.DatastoreVM
 import mohsen.morma.mormanote.gesturesEnabled
 import mohsen.morma.mormanote.note.SheetSpacer
+import mohsen.morma.mormanote.profileEmail
+import mohsen.morma.mormanote.profileImage
+import mohsen.morma.mormanote.profileName
 import mohsen.morma.mormanote.ui.theme.DarkBlue
+import mohsen.morma.mormanote.ui.theme.dosis
 import mohsen.morma.mormanote.ui.theme.ysabeauMedium
 
 
@@ -112,7 +116,6 @@ fun SignupPage(navController: NavHostController) {
                     containerColor = MaterialTheme.colorScheme.error
                 )
             }
-
 
         }
 
@@ -233,7 +236,7 @@ private fun SignupScreen(
                             )
                         },
                         isError = signupErrorFullName,
-                        textStyle = TextStyle(),
+                        textStyle = TextStyle(fontFamily = Font(dosis).toFontFamily()),
                         keyboardOptions = KeyboardOptions(
                             imeAction = ImeAction.Next,
                             capitalization = KeyboardCapitalization.Words
@@ -278,7 +281,7 @@ private fun SignupScreen(
                             )
                         },
                         isError = signupErrorEmail,
-                        textStyle = TextStyle(),
+                        textStyle = TextStyle(fontFamily = Font(dosis).toFontFamily()),
                         keyboardOptions = KeyboardOptions(
                             keyboardType = KeyboardType.Email,
                             imeAction = ImeAction.Next
@@ -335,7 +338,7 @@ private fun SignupScreen(
                             )
                         },
                         isError = signupErrorPassword,
-                        textStyle = TextStyle(),
+                        textStyle = TextStyle(fontFamily = Font(dosis).toFontFamily()),
                         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                         keyboardActions = KeyboardActions(onDone = {
                             registerByFirebase(
@@ -478,7 +481,8 @@ private fun registerByFirebase(
                 Firebase.auth.createUserWithEmailAndPassword(
                     emailTextField.text,
                     passwordTextField.text
-                ).addOnSuccessListener {
+                )
+                    .addOnSuccessListener {
                     val user = Firebase.auth.currentUser
 
 
@@ -489,26 +493,37 @@ private fun registerByFirebase(
 
                     user!!.updateProfile(profileUpdates).addOnSuccessListener {
                         user.uid.let { uid -> datastoreVM.putUserId(uid) }
-                        user.email?.let { email -> datastoreVM.putEmail(email) }
-                        user.displayName?.let { name -> datastoreVM.putFullName(name) }
-                        user.photoUrl?.path?.let { img -> datastoreVM.putImgUri(img) }
+                        user.email?.let { email ->
+                            profileEmail = email
+                            datastoreVM.putEmail(email)
+                        }
+                        user.displayName?.let { name ->
+                            profileName = name
+                            datastoreVM.putFullName(name)
+                        }
+                        user.photoUrl?.path?.let { img ->
+                            profileImage = img.toInt()
+                            datastoreVM.putImgUri(img)
+                        }
+                        datastoreVM.putFirstTime(false)
                         navController.navigate(Screen.HomeScreen.route) {
                             popUpTo(0)
                         }
                     }.addOnFailureListener { Log.e("3636",it.message.toString()) }
 
-                }.addOnFailureListener {
+                }
+                    .addOnFailureListener {
                             signupLoading = false
                             Log.e("3636", "Signup : ${it.message}")
 
                             if (it.message.equals("A network error (such as timeout, interrupted connection or unreachable host) has occurred."))
                                 errorSnackBar(scope, "Please check your network connection.")
-                            else if (it.message?.contains("That’s all we know.") == true)
+                            else if (it.message?.contains("403") == true)
                                 errorSnackBar(scope, "Sorry, This app isn't Available in your region.")
                             else if (it.message.equals("The email address is already in use by another account."))
                                 errorSnackBar(scope, "The email address is already in use by another account.")
                             else
-                                errorSnackBar(scope, "Please check tour network.")
+                                errorSnackBar(scope, "Please check your network.")
                         }
             } else {
                 signupErrorPassword = true
