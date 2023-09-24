@@ -105,6 +105,7 @@ var imageSelected by mutableIntStateOf(R.drawable.avatar4)
 fun SignupPage(navController: NavHostController) {
     gesturesEnabled = false
 
+
     Box(modifier = Modifier.fillMaxSize()) {
         Column {
             SheetSpacer()

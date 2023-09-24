@@ -41,7 +41,6 @@ import mohsen.morma.mormanote.profileImage
 import mohsen.morma.mormanote.profileName
 import mohsen.morma.mormanote.setting.appThemeSelected
 import mohsen.morma.mormanote.setting.checkedState
-import mohsen.morma.mormanote.ui.theme.DarkBlue
 
 var isGoToAnotherPage by mutableStateOf(false)
 
@@ -74,7 +73,7 @@ fun SplashScreen(datastoreVM: DatastoreVM = hiltViewModel()) {
     Box(
         Modifier
             .fillMaxSize()
-            .background(DarkBlue),
+            .background(appThemeSelected),
         Alignment.Center
     ) {
 
