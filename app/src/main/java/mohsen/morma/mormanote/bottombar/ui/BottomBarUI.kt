@@ -274,7 +274,7 @@ fun FabGroup(
                 ),
             opacity = LinearEasing.transform(0.2f, 0.7f, animationProgress),
             circleSize = 38.dp
-        ){ navController.navigate(Screen.NoteScreen.route + "?noteId=${-1}?bgImg=bgImg?link=") }
+        ){ navController.navigate(Screen.NoteScreen.route + "?noteId=${-1}?bgImg=?link=") }
 
         AnimatedFab(
             icon = R.drawable.note,
