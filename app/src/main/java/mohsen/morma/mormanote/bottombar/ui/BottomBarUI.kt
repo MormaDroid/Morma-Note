@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.FloatingActionButton
+import androidx.compose.material.FloatingActionButtonDefaults
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.ripple.LocalRippleTheme
@@ -335,7 +336,8 @@ fun AnimatedFab(
         FloatingActionButton(
             onClick = onClick,
             backgroundColor = backgroundColor,
-            modifier = modifier.scale(1.25f)
+            modifier = modifier.scale(1.25f),
+            elevation = FloatingActionButtonDefaults.elevation(0.dp,0.dp,0.dp,0.dp)
         ) {
             icon?.let {
                 Icon(
