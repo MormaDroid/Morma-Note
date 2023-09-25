@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "1094520473861",
+    "project_id": "morma-note",
+    "storage_bucket": "morma-note.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1094520473861:android:cff7c7dfe595f1dd6d8f6c",
+        "android_client_info": {
+          "package_name": "mohsen.morma.mormanote"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1094520473861-qv4qcrte1h09f6pa482qcoj0usnh4sqi.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCfQrtL4zNuESa4aMIx6P2WZjWJto8gM3I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1094520473861-jngnvuiv4bi47o5gfd6m3qtqnmlve8uv.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
