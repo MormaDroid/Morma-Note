@@ -147,7 +147,7 @@ private fun BackgroundImage(
     val notePreviewHeight = (contentSize + titleSize + 20.dp)
 
     Log.e("3636", "Height ${note.id} : $notePreviewHeight")
-    if (note.backgroundPic != 0 && note.backgroundPic != 2131165371) {
+    if (note.backgroundPic != 0 && note.backgroundPic != 2131230908) {
         GlideImage(
             model = note.backgroundPic,
             contentDescription = null,
